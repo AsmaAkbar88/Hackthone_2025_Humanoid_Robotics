@@ -23,12 +23,12 @@ const config = {
   url: 'https://asmaakbar88.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/book-physical-ai/',
+  baseUrl: '/book-docusaurus/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'AsmaAkbar88', // Usually your GitHub org/user name.
-  projectName: 'book-physical-ai', // Usually your repo name.
+  projectName: 'book-docusaurus', // Usually your repo name.
 
   onBrokenLinks: 'throw',
 
@@ -97,7 +97,7 @@ const config = {
           },
           {to: '/blog', label: 'Blog', position: 'left'},
           {
-            href: 'https://github.com/AsmaAkbar88/book-physical-ai',
+            href: 'https://github.com/AsmaAkbar88/book-docusaurus',
             label: 'GitHub',
             position: 'right',
           },
@@ -149,7 +149,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/AsmaAkbar88/book-physical-ai',
+                href: 'https://github.com/AsmaAkbar88/book-docusaurus',
               },
               {
                 label: 'Docusaurus',
