@@ -1,0 +1,84 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging.local
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+/dist/
+/build/
+/out/
+/public/
+
+# Docusaurus specific
+/book-docusaurus/.docusaurus/
+/book-docusaurus/build/
+.book/
+.cache-loader/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# Temporary folders
+tmp/
+temp/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+
+# Lock files for packages
+package-lock.json
+yarn.lock
+
+# Editor specific
+.vs/
+*.tmp
+*.bak
+
+# Local configuration
+config/local.json
+secrets.json
+*.key
+*.pem
+*.crt
+
+# Ignore the .claude directory if it contains sensitive data
+.claude/
+.specify/
+specs/
+history/
