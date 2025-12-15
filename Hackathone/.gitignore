@@ -76,9 +76,3 @@ secrets.json
 *.key
 *.pem
 *.crt
-
-# Ignore the .claude directory if it contains sensitive data
-.claude/
-.specify/
-specs/
-history/
