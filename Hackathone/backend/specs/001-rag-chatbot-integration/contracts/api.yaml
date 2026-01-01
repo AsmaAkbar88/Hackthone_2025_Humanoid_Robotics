@@ -1,0 +1,274 @@
+openapi: 3.0.3
+info:
+  title: Docusaurus Book Chatbot API
+  description: |
+    API for RAG-powered chatbot integrated into the Physical AI & Humanoid Robotics Docusaurus book.
+    This API provides chat functionality that queries the book content using retrieval-augmented generation.
+  version: 1.0.0
+  contact:
+    name: Physical AI & Humanoid Robotics Book Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://your-backend-url.com
+    description: Production server
+
+paths:
+  /chat:
+    post:
+      summary: Send a chat message
+      description: |
+        Submit a query to the RAG backend to get a response based on the book content.
+        Optionally provide highlighted text as context for the query.
+      operationId: chat
+      tags:
+        - Chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              simple_query:
+                summary: Simple query without context
+                value:
+                  query: "What is ROS 2?"
+              query_with_highlight:
+                summary: Query with highlighted text context
+                value:
+                  query: "Explain this concept in more detail"
+                  highlighted_text: "ROS 2 is a robotic middleware that provides communication between nodes."
+                  context:
+                    page_url: "https://asmaakbar88.vercel.app/docs/module-1-ros2"
+                    page_title: "Module 1: ROS 2"
+      responses:
+        '200':
+          description: Successful response with AI-generated answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Bad request - Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                query_too_short:
+                  summary: Query is too short
+                  value:
+                    error: ValidationError
+                    message: Query must be at least 5 characters long
+                    code: QUERY_TOO_SHORT
+                query_too_long:
+                  summary: Query is too long
+                  value:
+                    error: ValidationError
+                    message: Query must not exceed 2000 characters
+                    code: QUERY_TOO_LONG
+                highlight_too_long:
+                  summary: Highlighted text is too long
+                  value:
+                    error: ValidationError
+                    message: Highlighted text must not exceed 500 characters
+                    code: HIGHLIGHT_TOO_LONG
+        '500':
+          description: Internal server error - RAG backend unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                service_unavailable:
+                  summary: RAG service unavailable
+                  value:
+                    error: ServiceUnavailable
+                    message: RAG backend is temporarily unavailable. Please try again later.
+                    code: SERVICE_UNAVAILABLE
+                qdrant_error:
+                  summary: Qdrant connection error
+                  value:
+                    error: QdrantError
+                    message: Unable to connect to Qdrant. Please try again later.
+                    code: QDRANT_CONNECTION_ERROR
+
+  /health:
+    get:
+      summary: Health check endpoint
+      description: |
+        Check the health status of the chatbot API and its dependencies
+        (Qdrant, Cohere, OpenAI).
+      operationId: healthCheck
+      tags:
+        - System
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          minLength: 5
+          maxLength: 2000
+          description: The user's question or message
+          example: "What is ROS 2?"
+        highlighted_text:
+          type: string
+          maxLength: 500
+          description: |
+            Optional highlighted text from the book to provide context for the query.
+            If provided, the RAG agent will use this as additional context.
+          example: "ROS 2 is a robotic middleware..."
+        context:
+          type: object
+          description: Optional metadata about the current page
+          properties:
+            page_url:
+              type: string
+              format: uri
+              description: Current page URL
+              example: "https://asmaakbar88.vercel.app/docs/module-1-ros2"
+            page_title:
+              type: string
+              description: Current page title
+              example: "Module 1: ROS 2"
+
+    ChatResponse:
+      type: object
+      required:
+        - response_id
+        - query_id
+        - content
+        - generation_time
+        - confidence_score
+        - timestamp
+      properties:
+        response_id:
+          type: string
+          description: Unique identifier for this response
+          example: "response_1703926200"
+        query_id:
+          type: string
+          description: Identifier for the query this responds to
+          example: "query_1703926198"
+        content:
+          type: string
+          description: AI-generated response based on book content
+          example: "ROS 2 is a robot operating system that provides communication, scheduling, and resource management for robot applications..."
+        generation_time:
+          type: number
+          format: float
+          description: Time taken to generate the response in seconds
+          example: 1.23
+          minimum: 0
+        confidence_score:
+          type: number
+          format: float
+          description: Confidence score for the response (0.0 to 1.0)
+          example: 0.85
+          minimum: 0
+          maximum: 1
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO8601 timestamp when the response was generated
+          example: "2025-12-30T10:30:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - code
+      properties:
+        error:
+          type: string
+          description: Error type/category
+          enum:
+            - ValidationError
+            - ServiceUnavailable
+            - QdrantError
+            - CohereError
+            - OpenAIError
+            - Timeout
+          example: ValidationError
+        message:
+          type: string
+          description: Human-readable error message
+          example: Query must be at least 5 characters long
+        code:
+          type: string
+          description: Programmatic error code
+          enum:
+            - QUERY_TOO_SHORT
+            - QUERY_TOO_LONG
+            - HIGHLIGHT_TOO_LONG
+            - SERVICE_UNAVAILABLE
+            - QDRANT_CONNECTION_ERROR
+            - COHERE_API_ERROR
+            - OPENAI_API_ERROR
+            - TIMEOUT
+          example: QUERY_TOO_SHORT
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - details
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+          description: Overall health status
+        details:
+          type: object
+          description: Status of each dependency
+          required:
+            - qdrant
+            - openai
+            - cohere
+            - overall
+          properties:
+            qdrant:
+              type: boolean
+              description: Qdrant connection status
+            openai:
+              type: boolean
+              description: OpenAI API configuration status
+            cohere:
+              type: boolean
+              description: Cohere API configuration status
+            overall:
+              type: boolean
+              description: Overall system health (all dependencies healthy)
+
+  securitySchemes:
+    NoAuth:
+      type: apiKey
+      in: header
+      name: X-No-Auth
+      description: No authentication required (session-scoped)
+
+security:
+  - NoAuth: []
+
+tags:
+  - name: Chat
+    description: Chat endpoint for querying the book content
+  - name: System
+    description: System health check and monitoring endpoints

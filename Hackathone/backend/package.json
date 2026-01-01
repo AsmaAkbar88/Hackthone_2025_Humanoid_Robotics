@@ -1,0 +1,25 @@
+{
+  "name": "book-rag-chatbot",
+  "version": "1.0.0",
+  "description": "A RAG chatbot for book content using FastAPI backend and React frontend",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd .. && python -m uvicorn backend.api_ui:app --host 0.0.0.0 --port 8000",
+    "frontend": "npx serve -s .",
+    "dev": "concurrently \"npm run backend\" \"npx serve -s .\"",
+    "server": "cd .. && python -c \"from backend.api_ui import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=8000)\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["rag", "chatbot", "book", "qdrant", "python", "fastapi"],
+  "author": "Claude Code",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "serve": "^14.2.1"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

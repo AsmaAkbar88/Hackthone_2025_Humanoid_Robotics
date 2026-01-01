@@ -16,7 +16,7 @@ const config = {
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
-    v4: true, // Improve compatibility with the upcoming Docusaurus v4
+    v4: true, // Improve compatibility with upcoming Docusaurus v4
   },
 
   // Set the production url of your site here
@@ -48,7 +48,6 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl:
             'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
@@ -72,6 +71,13 @@ const config = {
         },
       }),
     ],
+  ],
+
+  plugins: [
+    require.resolve('./src/plugin-chatbot.js'),
+  ],
+  clientModules: [
+    require.resolve('./src/chatbot-client.js'),
   ],
 
   themeConfig:
@@ -158,7 +164,6 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Physical AI & Humanoid Robotics Book. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
