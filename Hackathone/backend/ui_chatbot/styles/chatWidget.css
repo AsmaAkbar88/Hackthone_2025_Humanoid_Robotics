@@ -1,0 +1,140 @@
+/**
+ * Styles for floating chat widget icon
+ */
+
+.chat-widget-icon {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--ifm-color-primary, #3b82f6);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  z-index: 10000;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-widget-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.chat-widget-icon:active {
+  transform: scale(0.95);
+}
+
+.chat-widget-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chat-widget-icon:focus {
+  outline: 2px solid var(--ifm-color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.chat-widget-icon:focus-visible {
+  outline: 2px solid var(--ifm-color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.chat-widget-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+}
+
+.chat-widget-icon .chat-icon {
+  transition: transform 0.2s ease-in-out;
+}
+
+.chat-widget-icon.open .chat-icon {
+  transform: rotate(180deg);
+}
+
+/* Unread message badge */
+.chat-unread-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 20px;
+  height: 20px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background-color: var(--ifm-alert-danger-foreground-color, #991b1b);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ifm-background-surface-color, #ffffff);
+}
+
+.chat-unread-badge.hidden {
+  display: none;
+}
+
+/* Pulsing animation for new messages */
+.chat-widget-icon.has-new-messages {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.6);
+  }
+}
+
+/* Tool tip */
+.chat-widget-icon[aria-label]:hover::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  background-color: var(--ifm-color-secondary, #24292f);
+  color: white;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.chat-widget-icon:hover::after {
+  opacity: 1;
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  .chat-widget-icon {
+    bottom: 16px;
+    right: 16px;
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .chat-widget-icon {
+    display: none !important;
+  }
+}

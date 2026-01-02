@@ -1,0 +1,17 @@
+{
+  "name": "docusaurus-chatbot-ui",
+  "version": "1.0.0",
+  "description": "React components and utilities for RAG chatbot UI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No automated tests configured\"",
+    "lint": "echo \"No linter configured\""
+  },
+  "dependencies": {
+    "date-fns": "^3.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}

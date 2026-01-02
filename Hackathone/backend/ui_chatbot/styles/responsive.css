@@ -1,0 +1,463 @@
+/**
+ * Responsive styles for chatbot UI
+ * Handles mobile, tablet, and desktop breakpoints
+ * Refined for accessibility and better UX
+ */
+
+:root {
+  /* CSS Variables for theming */
+  --chat-bg: var(--ifm-background-surface-color, #ffffff);
+  --chat-text: var(--ifm-font-color-base, #24292f);
+  --chat-primary: var(--ifm-color-primary, #3b82f6);
+  --chat-primary-dark: var(--ifm-color-primary-dark, #2563eb);
+  --chat-primary-light: var(--ifm-color-primary-light, #e1e4f8);
+  --chat-border: var(--ifm-border-color, #e0e0e0);
+  --chat-shadow: var(--ifm-global-shadow-lw, 0 5px 40px rgba(0, 0, 0, 0.15));
+  --chat-disabled: var(--ifm-color-disabled, #ccc);
+  --chat-secondary: var(--ifm-color-secondary, #6b7280);
+  --chat-success: var(--ifm-color-success, #00b894);
+  --chat-warning-bg: var(--ifm-alert-warning-bg-color, #fff3cd);
+  --chat-warning-text: var(--ifm-alert-warning-foreground-color, #664d03);
+  --chat-danger-bg: var(--ifm-alert-danger-bg-color, #fee);
+  --chat-danger-text: var(--ifm-alert-danger-foreground-color, #991b1b);
+}
+
+/* ===========================================================================
+   Base Styles
+   =========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid var(--chat-primary);
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--chat-primary);
+  outline-offset: 2px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* ===========================================================================
+   Mobile (default) - < 768px
+   =========================================================================== */
+
+.chat-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80vh;
+  width: 100%;
+  border-radius: 16px 16px 0 0;
+  background-color: var(--chat-bg);
+  box-shadow: var(--chat-shadow);
+  z-index: 9999;
+  transition: transform 0.3s ease-in-out;
+}
+
+.chat-panel.closed {
+  transform: translateY(100%);
+}
+
+.chat-panel-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--chat-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--chat-bg);
+}
+
+.chat-panel-header h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--chat-text);
+}
+
+.chat-message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  max-height: calc(80vh - 160px);
+  /* Scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: var(--chat-secondary) transparent;
+}
+
+.chat-message-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-message-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-message-list::-webkit-scrollbar-thumb {
+  background: var(--chat-secondary);
+  border-radius: 4px;
+}
+
+.chat-message-list::-webkit-scrollbar-thumb:hover {
+  background: var(--chat-text);
+}
+
+.chat-message {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+.chat-message.user {
+  background-color: var(--chat-primary);
+  color: white;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.chat-message.assistant {
+  background-color: var(--ifm-background-secondary-color, #f3f4f6);
+  color: var(--chat-text);
+  margin-left: 0;
+}
+
+.chat-message.system {
+  background-color: var(--chat-warning-bg);
+  color: var(--chat-warning-text);
+  text-align: center;
+  margin: 0 16px;
+}
+
+.chat-input-area {
+  padding: 16px;
+  border-top: 1px solid var(--chat-border);
+  background-color: var(--chat-bg);
+}
+
+.chat-input-container {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+}
+
+.chat-input-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  border: 1px solid var(--chat-border);
+  border-radius: 8px;
+  background-color: var(--chat-bg);
+  color: var(--chat-text);
+  font-family: inherit;
+  font-size: 1rem;
+  resize: none;
+}
+
+.chat-input-textarea:focus {
+  outline: 2px solid var(--chat-primary);
+  outline-offset: 2px;
+}
+
+.chat-input-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.chat-send-button {
+  padding: 12px 24px;
+  background-color: var(--chat-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chat-send-button:hover:not(:disabled) {
+  background-color: var(--chat-primary-dark);
+}
+
+.chat-send-button:disabled {
+  background-color: var(--chat-disabled);
+  cursor: not-allowed;
+}
+
+.chat-clear-button {
+  padding: 8px 16px;
+  background-color: transparent;
+  color: var(--chat-primary);
+  border: 1px solid var(--chat-primary);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-clear-button:hover {
+  background-color: var(--chat-primary);
+  color: white;
+}
+
+.highlight-button {
+  padding: 10px 16px;
+  background-color: var(--chat-primary);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 9998;
+  position: fixed;
+}
+
+.highlight-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* ===========================================================================
+   Tablet (768px - 1199px)
+   =========================================================================== */
+
+@media (min-width: 768px) {
+  .chat-panel {
+    bottom: 80px;
+    right: 20px;
+    left: auto;
+    width: 400px;
+    height: 600px;
+    border-radius: 12px;
+    max-width: calc(100vw - 40px);
+  }
+
+  .chat-message {
+    max-width: 90%;
+  }
+
+  .chat-message.user {
+    margin-left: auto;
+  }
+
+  .chat-message.assistant {
+    margin-right: auto;
+  }
+
+  .chat-input-container {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .chat-input-textarea {
+    flex: 1;
+    min-height: 44px;
+    max-height: 120px;
+  }
+
+  .chat-send-button {
+    min-width: 80px;
+    height: 48px;
+  }
+}
+
+/* ===========================================================================
+   Desktop (>= 1200px)
+   =========================================================================== */
+
+@media (min-width: 1200px) {
+  .chat-panel {
+    width: 450px;
+    height: 650px;
+    max-width: 450px;
+  }
+
+  .chat-panel-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .chat-message {
+    padding: 12px;
+  }
+
+  .chat-input-textarea {
+    min-height: 48px;
+  }
+}
+
+/* ===========================================================================
+   Loading Indicator
+   =========================================================================== */
+
+.chat-loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--chat-primary);
+  font-size: 0.875rem;
+}
+
+.chat-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--chat-primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===========================================================================
+   Error Display
+   =========================================================================== */
+
+.chat-error-message {
+  background-color: var(--chat-danger-bg);
+  color: var(--chat-danger-text);
+  padding: 12px;
+  border-radius: 8px;
+  margin: 16px;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.chat-error-button {
+  background-color: var(--chat-danger-text);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.chat-error-button:hover {
+  background-color: #7f1d1a;
+}
+
+/* ===========================================================================
+   Character Counter
+   =========================================================================== */
+
+.chat-character-counter {
+  font-size: 0.75rem;
+  color: var(--chat-secondary);
+  text-align: right;
+  margin-top: 4px;
+}
+
+.chat-character-counter.warning {
+  color: #b7950b;
+}
+
+.chat-character-counter.error {
+  color: var(--chat-danger-text);
+}
+
+/* ===========================================================================
+   Highlighted Context Block
+   =========================================================================== */
+
+.chat-highlighted-context {
+  background-color: var(--ifm-code-background, #f6f8fa);
+  border-left: 3px solid var(--chat-primary);
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: var(--chat-text);
+}
+
+.chat-highlighted-context-label {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--chat-primary);
+}
+
+/* ===========================================================================
+   Timestamp Display
+   =========================================================================== */
+
+.chat-timestamp {
+  font-size: 0.75rem;
+  color: var(--chat-secondary);
+  margin-top: 4px;
+}
+
+/* ===========================================================================
+   Print Styles
+   =========================================================================== */
+
+@media print {
+  .chat-widget,
+  .highlight-button {
+    display: none !important;
+  }
+}
+
+/* ===========================================================================
+   High Contrast Mode Support
+   =========================================================================== */
+
+@media (prefers-contrast: high) {
+  .chat-panel {
+    border: 2px solid var(--chat-text);
+  }
+
+  .chat-input-textarea {
+    border-width: 2px;
+  }
+
+  .chat-send-button,
+  .chat-clear-button {
+    border-width: 2px;
+  }
+}
+
+/* ===========================================================================
+   Reduced Motion Support
+   =========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel,
+  .highlight-button,
+  .chat-send-button,
+  .chat-clear-button {
+    transition: none;
+  }
+
+  .chat-loading-spinner {
+    animation: none;
+  }
+
+  .chat-loading-spinner::before {
+    content: '⏳';
+  }
+}
