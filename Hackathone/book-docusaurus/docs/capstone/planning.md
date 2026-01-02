@@ -9,7 +9,7 @@ This section covers the integration of planning capabilities into the Physical A
 ## Planning Architecture Overview
 
 The planning system in our integrated Physical AI system follows a hierarchical approach:
-
+ 
 ```
 High-Level Task Planner → Mid-Level Motion Planner → Low-Level Trajectory Generator
 ```

@@ -7,7 +7,7 @@ sidebar_label: 'Cloud Deployment Options'
 This section explores various cloud deployment options for Physical AI systems, comparing different approaches, providers, and architectures to help you select the optimal solution for your specific requirements.
 
 ## Cloud Deployment Architectures
-
+ 
 ### Infrastructure as a Service (IaaS)
 IaaS provides virtualized computing resources over the internet:
 

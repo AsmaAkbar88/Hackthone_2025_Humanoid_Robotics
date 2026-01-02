@@ -5,7 +5,7 @@ sidebar_label: 'Capstone: System Integration'
 # Capstone: Physical AI System Integration
 
 Welcome to the capstone project of the Physical AI & Humanoid Robotics book. This module brings together all the concepts learned in the previous modules to create a complete, integrated physical AI system that demonstrates the full pipeline from voice commands to robotic manipulation.
-
+ 
 The capstone project focuses on creating a holistic system that integrates voice processing, planning, navigation, object detection, and manipulation in a cohesive robotic platform. This represents the culmination of the Physical AI approach, where multiple AI and robotics technologies work together to create intelligent, autonomous systems.
 
 ## Learning Objectives

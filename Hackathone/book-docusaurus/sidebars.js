@@ -18,7 +18,7 @@ const sidebars = {
   // Manual sidebar for the Physical AI & Humanoid Robotics book
   tutorialSidebar: [
     {
-      type: 'category',
+      type: 'category', 
       label: 'Introduction',
       items: ['intro'],
       link: {

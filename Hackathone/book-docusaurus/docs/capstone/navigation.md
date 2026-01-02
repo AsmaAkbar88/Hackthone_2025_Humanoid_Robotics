@@ -7,7 +7,7 @@ sidebar_label: 'Navigation Integration'
 This section covers the integration of navigation capabilities into the Physical AI system, enabling autonomous movement and path planning for the integrated robotic platform. Navigation bridges the gap between planning and physical movement, allowing the robot to traverse environments safely and efficiently.
 
 ## Navigation Architecture Overview
-
+ 
 The navigation system in our integrated Physical AI system follows a layered approach:
 
 ```

@@ -7,7 +7,7 @@ sidebar_label: 'System Integration'
 This section covers the complete integration of all Physical AI system components, demonstrating how the individual modules work together in a unified system.
 
 ## Complete System Architecture
-
+ 
 The integrated Physical AI system follows this complete pipeline:
 
 ```

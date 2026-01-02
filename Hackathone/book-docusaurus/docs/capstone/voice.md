@@ -10,7 +10,7 @@ This section covers the integration of voice processing capabilities into the Ph
 
 The voice processing component of our integrated Physical AI system follows this pipeline:
 
-```
+``` 
 Voice Input → Audio Preprocessing → Speech Recognition → Natural Language Understanding → Command Validation → Task Planning Interface
 ```
 

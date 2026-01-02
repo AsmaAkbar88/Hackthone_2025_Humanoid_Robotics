@@ -7,7 +7,7 @@ sidebar_label: 'Cloud Deployment'
 This section covers deployment options for Physical AI systems, comparing local and cloud-based approaches. The choice between local and cloud deployment significantly impacts performance, cost, security, and operational capabilities of Physical AI applications.
 
 ## Overview of Deployment Options
-
+  
 Physical AI systems can be deployed using two primary approaches:
 
 - **Local Deployment**: All computation and control run on-premises or on-device

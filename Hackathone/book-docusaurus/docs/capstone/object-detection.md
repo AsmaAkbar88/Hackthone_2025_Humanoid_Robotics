@@ -7,7 +7,7 @@ sidebar_label: 'Object Detection Integration'
 This section covers the integration of object detection capabilities into the Physical AI system, enabling the robot to identify, localize, and classify objects in its environment. Object detection serves as a critical bridge between raw sensor data and actionable information for manipulation and navigation tasks.
 
 ## Object Detection Architecture Overview
-
+ 
 The object detection system in our integrated Physical AI system follows a multi-modal approach:
 
 ```

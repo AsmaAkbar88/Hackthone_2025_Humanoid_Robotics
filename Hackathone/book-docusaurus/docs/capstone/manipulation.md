@@ -5,7 +5,7 @@ sidebar_label: 'Manipulation Integration'
 # Manipulation Integration
 
 This section covers the integration of manipulation capabilities into the Physical AI system, enabling the robot to physically interact with objects in its environment. Manipulation represents the final step in the voice → planning → navigation → object detection → manipulation pipeline, where high-level commands are translated into precise physical actions.
-
+ 
 ## Manipulation Architecture Overview
 
 The manipulation system in our integrated Physical AI system follows a hierarchical control approach:
