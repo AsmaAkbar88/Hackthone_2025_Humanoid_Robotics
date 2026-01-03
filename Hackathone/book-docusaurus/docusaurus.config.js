@@ -74,6 +74,13 @@ const config = {
     ],
   ],
 
+  plugins: [
+    require.resolve('./src/plugin-chatbot.js'),
+  ],
+  clientModules: [
+    require.resolve('./src/chatbot-client.js'),
+  ],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
