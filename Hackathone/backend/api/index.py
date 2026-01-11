@@ -44,10 +44,12 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",      # Local development
+        "http://localhost:3001",      # Local development with different port
         "https://asmaakbar88.vercel.app",  # Your deployed frontend
         "http://localhost",            # Fallback for local
         "http://127.0.0.1",           # Additional local fallback
         "https://book-three-eta.vercel.app",  # Alternative deployment
+        "*"  # Allow all origins for local development (be careful in production)
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
@@ -284,3 +286,10 @@ async def root():
 
 # This is the entry point for Vercel
 app_instance = app
+
+# For Vercel Python runtime compatibility
+def handler(event, context):
+    # This function is needed for Vercel's serverless functions
+    from mangum import Mangum
+    mangum_handler = Mangum(app)
+    return mangum_handler(event, context)

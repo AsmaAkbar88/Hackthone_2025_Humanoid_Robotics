@@ -1,4 +1,7 @@
 #  uvicorn api:app --reload
+# uvicorn api.index:app_instance --reload
+
+# uvicorn api.index:app_instance --port 8000 --host 127.0.0.1
 import os
 import requests
 from bs4 import BeautifulSoup

@@ -3,7 +3,7 @@
  */
 
 // Message validation constants
-export const MIN_QUERY_LENGTH = 1;
+export const MIN_QUERY_LENGTH = 5;
 export const MAX_QUERY_LENGTH = 2000;
 export const MAX_HIGHLIGHT_LENGTH = 500;
 export const MAX_MESSAGES_PER_SESSION = 50;

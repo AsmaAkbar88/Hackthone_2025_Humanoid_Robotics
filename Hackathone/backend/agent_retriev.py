@@ -30,13 +30,14 @@ set_tracing_disabled(True)
 class CohereRateLimiter:
     """
     Rate limiter for Cohere API (Trial key: very conservative limits)
+    For local development, we'll use more permissive limits
     """
-    def __init__(self, requests_per_minute=10, concurrent_limit=1):
+    def __init__(self, requests_per_minute=60, concurrent_limit=2):
         self.requests_per_minute = requests_per_minute
         self.concurrent_limit = concurrent_limit
         self.semaphore = threading.Semaphore(concurrent_limit)
         self.last_request_time = 0
-        self.min_interval = 60.0 / requests_per_minute  # seconds between requests
+        self.min_interval = max(0.1, 60.0 / requests_per_minute)  # seconds between requests, minimum 0.1s
         self.lock = threading.Lock()
 
     def acquire(self):
@@ -48,7 +49,8 @@ class CohereRateLimiter:
         with self.lock:
             now = time.time()
             elapsed = now - self.last_request_time
-            wait_time = max(0, self.min_interval - elapsed)
+            # Reduce the wait time to be more responsive during development
+            wait_time = max(0.1, self.min_interval - elapsed)  # Minimum 0.1s instead of longer waits
 
             if wait_time > 0:
                 print(f"Rate limit: waiting {wait_time:.2f}s...")
