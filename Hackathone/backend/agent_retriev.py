@@ -646,8 +646,27 @@ class RAGAgent:
         if not query_text or len(query_text.strip()) < 5:
             raise ValueError("Query must be at least 5 characters long")
 
-        # Check if the query is a greeting or casual conversation first
+        # Check if the query is about the book name (before greetings to avoid conflicts)
         query_lower = query_text.lower().strip()
+        book_queries = ["book name", "title", "what is the book", "what book is this", "name of the book", "book title"]
+        for book_query in book_queries:
+            if book_query in query_lower:
+                response_text = "The book is titled 'Physical AI & Humanoid Robotics'. It covers topics related to robotics, ROS2, Gazebo, NVIDIA Isaac, Vision-Language-Action models, and humanoid robot development."
+
+                # Return a response without generating embeddings or querying Qdrant
+                generation_time = time.time() - start_time
+                response = Response(
+                    response_id=f"response_{int(time.time())}",
+                    query_id=f"query_{int(time.time())}",
+                    content=response_text,
+                    context_chunks_used=[],
+                    generation_time=generation_time,
+                    confidence_score=1.0,  # High confidence for predefined responses
+                    timestamp=datetime.now()
+                )
+                return response
+
+        # Check if the query is a greeting or casual conversation
         greetings = ["hello", "hi", "hey", "greetings", "good morning", "good afternoon", "good evening", "how are you", "how are you?", "hru", "hru?", "what's up", "what's up?", "whats up", "whats up?"]
 
         for greeting in greetings:
