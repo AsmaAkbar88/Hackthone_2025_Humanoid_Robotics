@@ -1,3 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-  <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 6C4 4.34315 5.34315 3 7 3H25C26.6569 3 28 4.34315 28 6V22C28 23.6569 26.6569 25 25 25H12L8 29L8.00003 25H7C5.34315 25 4 23.6569 4 22V6Z"
+        fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="2"/>
+  <!-- Speech bubbles inside -->
+  <circle cx="12" cy="12" r="2" fill="currentColor"/>
+  <circle cx="17" cy="12" r="2" fill="currentColor"/>
+  <circle cx="22" cy="12" r="2" fill="currentColor"/>
 </svg>

@@ -1,0 +1,321 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  /* Light Theme Colors */
+  --ifm-color-primary: #1565c0; /* Professional blue */
+  --ifm-color-primary-dark: #104993;
+  --ifm-color-primary-darker: #0e4080;
+  --ifm-color-primary-darkest: #082651;
+  --ifm-color-primary-light: #3f8ecc;
+  --ifm-color-primary-lighter: #6da9d7;
+  --ifm-color-primary-lightest: #a0cbe3;
+  --ifm-background-color: #ffffff;
+  --ifm-text-color: #212121;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: #f0f0f0; /* Improved contrast for light theme */
+
+  /* Spacing Scale - Multiples of 8px for consistency */
+  --ifm-spacing-xs: 0.5rem;    /* 4px */
+  --ifm-spacing-sm: 0.75rem;   /* 6px */
+  --ifm-spacing: 1rem;         /* 8px */
+  --ifm-spacing-md: 1.25rem;   /* 10px */
+  --ifm-spacing-lg: 1.5rem;    /* 12px */
+  --ifm-spacing-xl: 2rem;      /* 16px */
+  --ifm-spacing-xxl: 3rem;     /* 24px */
+  --ifm-spacing-xxxl: 4rem;    /* 32px */
+
+  /* Typography */
+  --ifm-font-family-base: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  --ifm-font-family-monospace: 'SFMono-Regular', Consolas, 'Roboto Mono', 'Droid Sans Mono', 'Liberation Mono', Menlo, monospace;
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  /* Dark Theme Colors */
+  --ifm-color-primary: #64b5f6; /* Light blue accent */
+  --ifm-color-primary-dark: #3ea0e7;
+  --ifm-color-primary-darker: #2a90d9;
+  --ifm-color-primary-darkest: #1870b8;
+  --ifm-color-primary-light: #8bc7fb;
+  --ifm-color-primary-lighter: #b2d7fd;
+  --ifm-color-primary-lightest: #e3f2ff;
+  --ifm-background-color: #121212;
+  --ifm-text-color: #e0e0e0;
+  --docusaurus-highlighted-code-line-bg: #1e1e1e; /* Improved contrast for dark theme */
+
+  /* Dark theme typography adjustments */
+  --ifm-font-family-base: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  --ifm-font-family-monospace: 'SFMono-Regular', Consolas, 'Roboto Mono', 'Droid Sans Mono', 'Liberation Mono', Menlo, monospace;
+}
+
+/* Spacing system */
+.container {
+  padding: var(--ifm-spacing) var(--ifm-spacing-lg);
+}
+
+.card {
+  padding: var(--ifm-spacing-xl);
+  border-radius: 8px;
+  margin-bottom: var(--ifm-spacing-lg);
+}
+
+.button {
+  padding: var(--ifm-spacing-sm) var(--ifm-spacing);
+  margin: var(--ifm-spacing-xs);
+}
+
+/* Theme toggle button styling */
+.react-toggle {
+  margin-left: var(--ifm-navbar-item-padding-horizontal);
+}
+
+.theme-edit-this-page {
+  display: flex;
+  align-items: center;
+}
+
+/* Enhanced theme toggle appearance */
+.navbar .clean-btn {
+  color: var(--ifm-navbar-link-color);
+}
+
+.navbar .clean-btn:hover {
+  color: var(--ifm-navbar-link-hover-color);
+}
+
+/* Navbar enhancements */
+.navbar {
+  padding: var(--ifm-spacing-sm) 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.navbar__inner {
+  max-width: var(--ifm-container-width);
+  margin: 0 auto;
+  padding: 0 var(--ifm-spacing);
+}
+
+.navbar__brand {
+  margin-right: var(--ifm-spacing);
+}
+
+.navbar__item {
+  margin-right: var(--ifm-spacing);
+}
+
+.navbar__link {
+  padding: var(--ifm-spacing-xs) var(--ifm-spacing-sm);
+  border-radius: 4px;
+}
+
+/* Sidebar enhancements */
+.menu {
+  padding: var(--ifm-spacing);
+}
+
+.menu__list {
+  margin-bottom: 0;
+}
+
+.menu__list-item {
+  margin-bottom: var(--ifm-spacing-xs);
+}
+
+.menu__link {
+  padding: var(--ifm-spacing-xs) var(--ifm-spacing-sm);
+  border-radius: 4px;
+  margin-right: var(--ifm-spacing-xs);
+}
+
+.menu__link--active {
+  background-color: color-mix(in srgb, var(--ifm-color-primary), transparent 85%);
+  font-weight: 600;
+}
+
+/* Breadcrumb enhancements */
+.theme-editable-metadata {
+  margin-bottom: var(--ifm-spacing-lg);
+}
+
+.breadcrumbs {
+  padding: var(--ifm-spacing) var(--ifm-spacing-lg);
+  margin-bottom: var(--ifm-spacing-lg);
+  background-color: color-mix(in srgb, var(--ifm-color-emphasis-100), transparent 70%);
+  border-radius: 4px;
+}
+
+.breadcrumbs__item {
+  margin-right: var(--ifm-spacing-xs);
+}
+
+.breadcrumbs__item:not(:last-child)::after {
+  content: ">";
+  margin-left: var(--ifm-spacing-xs);
+  opacity: 0.6;
+}
+
+/* Content area enhancements */
+.main-wrapper {
+  padding: var(--ifm-spacing-lg) 0;
+}
+
+article {
+  max-width: var(--ifm-container-width);
+  margin: 0 auto;
+  padding: 0 var(--ifm-spacing-lg);
+}
+
+/* Card components for documentation sections */
+.card {
+  background-color: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  padding: var(--ifm-spacing-xl);
+  margin-bottom: var(--ifm-spacing-lg);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card--primary {
+  border-left: 4px solid var(--ifm-color-primary);
+}
+
+.card--secondary {
+  border-left: 4px solid var(--ifm-color-secondary);
+}
+
+/* Content section padding */
+.padding-horiz--md {
+  padding: 0 var(--ifm-spacing-lg);
+}
+
+.padding-vert--md {
+  padding: var(--ifm-spacing-xl) 0;
+}
+
+/* Documentation container */
+.doc-wrapper {
+  max-width: var(--ifm-container-width);
+  margin: 0 auto;
+  padding: 0 var(--ifm-spacing);
+}
+
+/* Footer enhancements */
+.footer {
+  padding: var(--ifm-spacing-xxl) var(--ifm-spacing-lg);
+  background-color: var(--ifm-color-emphasis-900);
+  color: var(--ifm-color-emphasis-300);
+}
+
+.footer__title {
+  font-weight: 600;
+  margin-bottom: var(--ifm-spacing);
+  color: var(--ifm-color-emphasis-100);
+}
+
+.footer__items {
+  margin-bottom: var(--ifm-spacing-lg);
+}
+
+.footer__link-item {
+  display: block;
+  margin-bottom: var(--ifm-spacing-sm);
+  color: var(--ifm-color-emphasis-300);
+  text-decoration: none;
+}
+
+.footer__link-item:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.footer--dark {
+  --ifm-footer-background-color: #1a1a1a;
+}
+
+.footer__copyright {
+  text-align: center;
+  padding-top: var(--ifm-spacing-lg);
+  margin-top: var(--ifm-spacing-lg);
+  border-top: 1px solid var(--ifm-color-emphasis-700);
+  color: var(--ifm-color-emphasis-500);
+  font-size: 0.875rem;
+}
+
+/* Typography enhancements */
+html {
+  font-family: var(--ifm-font-family-base);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ifm-font-family-base);
+  font-weight: 600;
+}
+
+.markdown {
+  font-family: var(--ifm-font-family-base);
+  line-height: 1.7;
+}
+
+.code-block {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.9em;
+}
+
+/* Theme-specific adjustments */
+[data-theme='dark'] {
+  /* Dark theme specific overrides */
+  --ifm-color-emphasis-100: rgba(255, 255, 255, 0.05);
+  --ifm-color-emphasis-200: rgba(255, 255, 255, 0.1);
+  --ifm-color-emphasis-300: rgba(255, 255, 255, 0.2);
+  --ifm-color-emphasis-400: rgba(255, 255, 255, 0.3);
+  --ifm-color-emphasis-500: rgba(255, 255, 255, 0.4);
+  --ifm-color-emphasis-600: rgba(255, 255, 255, 0.5);
+  --ifm-color-emphasis-700: rgba(255, 255, 255, 0.6);
+  --ifm-color-emphasis-800: rgba(255, 255, 255, 0.7);
+  --ifm-color-emphasis-900: rgba(255, 255, 255, 0.8);
+  --ifm-color-emphasis-1000: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme='light'] {
+  /* Light theme specific overrides */
+  --ifm-color-emphasis-100: rgba(0, 0, 0, 0.05);
+  --ifm-color-emphasis-200: rgba(0, 0, 0, 0.1);
+  --ifm-color-emphasis-300: rgba(0, 0, 0, 0.2);
+  --ifm-color-emphasis-400: rgba(0, 0, 0, 0.3);
+  --ifm-color-emphasis-500: rgba(0, 0, 0, 0.4);
+  --ifm-color-emphasis-600: rgba(0, 0, 0, 0.5);
+  --ifm-color-emphasis-700: rgba(0, 0, 0, 0.6);
+  --ifm-color-emphasis-800: rgba(0, 0, 0, 0.7);
+  --ifm-color-emphasis-900: rgba(0, 0, 0, 0.8);
+  --ifm-color-emphasis-1000: rgba(0, 0, 0, 0.9);
+}
+
+/* Code block enhancements for both themes */
+.prism-code {
+  border-radius: 6px;
+  font-size: 0.9em;
+  padding: var(--ifm-spacing-md);
+  line-height: 1.5;
+}
+
+/* Button styling for theme consistency */
+.button {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.button--primary {
+  background-color: var(--ifm-color-primary);
+  color: white;
+}
+
+.button--secondary {
+  background-color: var(--ifm-color-emphasis-200);
+  color: var(--ifm-font-color-base);
+}
