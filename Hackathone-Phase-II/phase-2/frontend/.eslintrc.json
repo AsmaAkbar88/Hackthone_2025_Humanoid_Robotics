@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "@next/next/no-typos"
+  ],
+  "rules": {
+    "@next/next/no-img-element": "off",
+    "react/jsx-key": "error"
+  }
+}

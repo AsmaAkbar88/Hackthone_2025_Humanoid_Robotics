@@ -1,0 +1,34 @@
+/* CSS custom properties for theme management */
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --text-primary: #FFFFFF;
+  --text-secondary: #CCCCCC;
+  --border-color: #333333;
+  --accent-primary: #FFFFFF;
+  --accent-secondary: #AAAAAA;
+}
+
+/* Light theme variables */
+[data-theme="light"] {
+  --bg-primary: #F8F8F8;
+  --bg-secondary: #FFFFFF;
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --border-color: #DDDDDD;
+  --accent-primary: #FF69B4; /* pink */
+  --accent-secondary: #E8E8E8;
+}
+
+/* Base theme variables */
+:root {
+  --bg-primary: var(--bg-primary, #F8F8F8);
+  --bg-secondary: var(--bg-secondary, #FFFFFF);
+  --text-primary: var(--text-primary, #000000);
+  --text-secondary: var(--text-secondary, #333333);
+  --border-color: var(--border-color, #DDDDDD);
+  --accent-primary: var(--accent-primary, #FF69B4);
+  --accent-secondary: var(--accent-secondary, #E8E8E8);
+}
