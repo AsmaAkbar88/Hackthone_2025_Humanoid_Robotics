@@ -1,0 +1,65 @@
+# Docker Build and Run Instructions
+
+## Prerequisites
+- Docker installed and running
+- Network connectivity to pull base images
+- Port 3000 available for frontend
+- Port 8000 available for backend
+
+## Building Images
+To build the Docker images after resolving network issues:
+
+### Backend
+```bash
+cd backend
+docker build -t todo-backend .
+```
+
+### Frontend
+```bash
+cd frontend
+docker build -t todo-frontend .
+```
+
+## Important Note
+If the frontend build fails with a Node.js version error, ensure that the Dockerfile uses Node.js 20 or higher, as Next.js 16 requires Node.js version >=20.9.0.
+
+## Running Containers
+After successful builds, run the containers:
+
+### Backend
+```bash
+docker run -d --name todo-backend-container -p 8000:8000 todo-backend
+```
+
+### Frontend
+```bash
+docker run -d --name todo-frontend-container -p 3000:3000 todo-frontend
+```
+
+## Alternative: Using Docker Compose
+If you create a docker-compose.yml file, you can run:
+```bash
+docker-compose up -d
+```
+
+## Stopping Containers
+To stop the running containers:
+
+### Individual containers
+```bash
+docker stop todo-backend-container
+docker stop todo-frontend-container
+```
+
+### Or if using Docker Compose
+```bash
+docker-compose down
+```
+
+## Troubleshooting
+- If builds fail due to network issues, check your internet connection and DNS settings
+- If ports are unavailable, check for conflicting processes with `netstat -an | findstr :3000` or `netstat -an | findstr :8000`
+- To remove containers: `docker rm todo-backend-container todo-frontend-container`
+- To remove images: `docker rmi todo-backend todo-frontend`
+- For frontend build issues, ensure Node.js version compatibility (>=20.9.0 for Next.js 16)
