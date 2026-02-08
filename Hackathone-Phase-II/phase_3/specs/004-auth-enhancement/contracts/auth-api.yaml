@@ -1,0 +1,137 @@
+openapi: 3.0.3
+info:
+  title: Authentication API
+  version: 1.0.0
+  description: API for authentication system with enhanced error handling
+
+paths:
+  /api/auth/signin:
+    post:
+      summary: Authenticate user and create session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                password:
+                  type: string
+                  description: User's password
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for authenticated session
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: User identifier
+                      email:
+                        type: string
+                        format: email
+                        description: User's email address
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum: [INVALID_EMAIL_FORMAT, MISSING_FIELDS]
+                    description: Type of validation error
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum: [EMAIL_NOT_FOUND, INVALID_PASSWORD, AUTH_FAILED]
+                    description: Specific reason for authentication failure
+                  message:
+                    type: string
+                    description: User-friendly error message
+
+  /api/auth/signup:
+    post:
+      summary: Create new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                password:
+                  type: string
+                  description: User's password
+                signup_date:
+                  type: string
+                  format: date-time
+                  description: Date and time of account creation (auto-generated if not provided)
+              required:
+                - email
+                - password
+      responses:
+        '201':
+          description: User account created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for authenticated session
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: User identifier
+                      email:
+                        type: string
+                        format: email
+                        description: User's email address
+                      signup_date:
+                        type: string
+                        format: date-time
+                        description: Date and time when account was created
+        '400':
+          description: Invalid request format or validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum: [INVALID_EMAIL_FORMAT, WEAK_PASSWORD, EMAIL_EXISTS, INVALID_SIGNUP_DATE]
+                    description: Type of validation error
+                  message:
+                    type: string
+                    description: User-friendly error message

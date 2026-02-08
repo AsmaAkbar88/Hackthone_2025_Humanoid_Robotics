@@ -1,0 +1,53 @@
+/* Dark theme CSS with black & white palette */
+
+[data-theme="dark"] {
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --text-primary: #FFFFFF;
+  --text-secondary: #CCCCCC;
+  --border-color: #333333;
+  --accent-primary: #FFFFFF;
+  --accent-secondary: #AAAAAA;
+
+  /* Background colors */
+  --bg-card: #000000;
+  --bg-modal: #111111;
+  --bg-header: #000000;
+
+  /* Text colors */
+  --text-heading: #FFFFFF;
+  --text-body: #CCCCCC;
+  --text-muted: #888888;
+
+  /* Border colors */
+  --border-input: #333333;
+  --border-card: #222222;
+
+  /* State colors */
+  --color-success: #00FF00;
+  --color-warning: #FFFF00;
+  --color-error: #FF4444;
+  --color-info: #4444FF;
+}
+
+/* Apply dark theme styles */
+[data-theme="dark"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .container {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: var(--bg-primary);
+  border-color: var(--border-input);
+  color: var(--text-primary);
+}
