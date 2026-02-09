@@ -13,6 +13,7 @@ VolumeIcon.icns
 # Log files
 logs/
 *.log
+.gemini
 
 # Environment variables
 .env

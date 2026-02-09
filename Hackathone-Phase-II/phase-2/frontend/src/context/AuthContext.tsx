@@ -33,8 +33,8 @@ const initialState: AuthState = {
 
 const AuthContext = createContext<{
   state: AuthState;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, dateOfBirth: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string, dateOfBirth: string) => Promise<User>;
   logout: () => Promise<void>;
   clearError: () => void;
   resetPassword: (data: { email: string; newPassword: string }) => Promise<void>;

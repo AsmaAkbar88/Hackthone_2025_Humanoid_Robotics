@@ -20,13 +20,35 @@ interface UpdateTaskData extends Partial<CreateTaskData> {
   completed?: boolean;
 }
 
+interface GetAllTasksBackendResponse {
+  data: {
+    tasks: Task[];
+  };
+}
+
+interface GetTaskByIdBackendResponse {
+  data: Task;
+}
+
+interface CreateTaskBackendResponse {
+  data: Task;
+}
+
+interface UpdateTaskBackendResponse {
+  data: Task;
+}
+
+interface ToggleCompletionBackendResponse {
+  data: any; // Assuming it returns some data, but the full task is fetched via getById
+}
+
 class TaskService {
   async getAll(): Promise<Task[]> {
     try {
       // API call to the backend to get all tasks for the current user
-      const response = await apiClient.get('/tasks');
+      const response = await apiClient.get<GetAllTasksBackendResponse>('/tasks');
       return response.data.data.tasks || [];
-    } catch (error) {
+    } catch (error: any) {
       // Show error message when backend is not running
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
@@ -39,9 +61,9 @@ class TaskService {
   async getById(id: string | number): Promise<Task> {
     try {
       // API call to the backend to get a specific task
-      const response = await apiClient.get(`/tasks/${id}`);
+      const response = await apiClient.get<GetTaskByIdBackendResponse>(`/tasks/${id}`);
       return response.data.data; // Backend returns task in data property
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }
@@ -53,9 +75,9 @@ class TaskService {
   async create(taskData: CreateTaskData): Promise<Task> {
     try {
       // API call to the backend to create a new task
-      const response = await apiClient.post('/tasks', taskData);
+      const response = await apiClient.post<CreateTaskBackendResponse>('/tasks', taskData);
       return response.data.data; // Backend returns task in data property
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }
@@ -67,9 +89,9 @@ class TaskService {
   async update(id: string | number, taskData: UpdateTaskData): Promise<Task> {
     try {
       // API call to the backend to update a task
-      const response = await apiClient.put(`/tasks/${id}`, taskData);
+      const response = await apiClient.put<UpdateTaskBackendResponse>(`/tasks/${id}`, taskData);
       return response.data.data; // Backend returns task in data property
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }
@@ -81,7 +103,7 @@ class TaskService {
   async toggleCompletion(id: string | number): Promise<Task> {
     try {
       // API call to the backend to toggle task completion
-      const response = await apiClient.patch(`/tasks/${id}/toggle`);
+      const response = await apiClient.patch<ToggleCompletionBackendResponse>(`/tasks/${id}/toggle`);
 
       // The toggle endpoint returns limited data, so we need to fetch the full task
       // Or we can update based on the response we get
@@ -89,7 +111,7 @@ class TaskService {
 
       // For now, let's fetch the full task after toggling to get complete data
       return await this.getById(id);
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }
@@ -102,7 +124,7 @@ class TaskService {
     try {
       // API call to the backend to delete a task
       await apiClient.delete(`/tasks/${id}`);
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }

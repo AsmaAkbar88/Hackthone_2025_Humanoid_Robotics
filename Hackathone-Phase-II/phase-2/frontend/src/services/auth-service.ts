@@ -23,7 +23,7 @@ interface ResetPasswordData {
   newPassword: string;
 }
 
-interface User {
+export interface User {
   id: string;
   email: string;
   name?: string;
@@ -33,13 +33,44 @@ interface User {
   force_password_change?: boolean; // Flag to indicate if user needs to change password
 }
 
+
+interface LoginBackendResponse {
+  data: {
+    user: User;
+    access_token: string;
+  };
+}
+
+interface RegisterBackendResponse {
+  success: boolean;
+  data: {
+    user: {
+      id: string;
+      email: string;
+      name?: string;
+      date_of_birth?: string; // Snake_case from backend
+      created_at: string; // Snake_case from backend
+    };
+    access_token: string;
+    token_type: string;
+  };
+}
+
+interface ForgotPasswordBackendResponse {
+  success: boolean;
+}
+
+interface ResetPasswordBackendResponse {
+  success: boolean;
+}
+
 class AuthService {
   async login(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
     console.log('Login attempt with:', credentials);
 
     try {
       // API call to the backend
-      const response = await apiClient.post('/auth/login', credentials);
+      const response = await apiClient.post<LoginBackendResponse>('/auth/login', credentials);
 
       // Transform the response to match what the frontend expects
       const { data } = response.data; // Extract from the nested data property
@@ -54,7 +85,7 @@ class AuthService {
         user,
         token: data.access_token
       };
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }
@@ -105,7 +136,7 @@ class AuthService {
       };
 
       // API call to the backend
-      const response = await apiClient.post('/auth/register', transformedData);
+      const response = await apiClient.post<RegisterBackendResponse>('/auth/register', transformedData);
 
       // Transform the response to match what the frontend expects
       const responseData = response.data; // The backend returns data in a nested structure
@@ -119,7 +150,7 @@ class AuthService {
         email: backendUserData.user.email,
         name: backendUserData.user.name || undefined,
         dateOfBirth: backendUserData.user.date_of_birth, // Map snake_case to camelCase
-        createdAt: backendUserData.user.created_at || backendUserData.user.createdAt,
+        createdAt: backendUserData.user.created_at,
       };
 
       // Ensure force_password_change flag is handled appropriately to prevent unwanted notifications
@@ -132,7 +163,7 @@ class AuthService {
         user: user as User,
         token: backendUserData.access_token
       };
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }
@@ -159,12 +190,12 @@ class AuthService {
 
     try {
       // API call to the backend - update to match new backend expectation
-      const response = await apiClient.post('/auth/forgot-password', {
+      const response = await apiClient.post<ForgotPasswordBackendResponse>('/auth/forgot-password', {
         email: forgotData.email,
         date_of_birth: forgotData.dateOfBirth  // Convert to snake_case to match backend
       });
       return response.data.success;
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }
@@ -188,12 +219,12 @@ class AuthService {
 
     try {
       // API call to the backend - update to match new backend expectation
-      const response = await apiClient.post('/auth/reset-password', {
+      const response = await apiClient.post<ResetPasswordBackendResponse>('/auth/reset-password', {
         email: resetData.email,
         new_password: resetData.newPassword
       });
       return response.data.success;
-    } catch (error) {
+    } catch (error: any) {
       if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
         throw new Error('Backend server is not running. Please start the backend server on port 8000.');
       }
