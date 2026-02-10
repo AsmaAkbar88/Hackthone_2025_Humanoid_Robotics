@@ -6,10 +6,10 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # Database settings
-    database_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:password@localhost/todo_db")
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./todo.db")
     async_database_url: str = os.getenv(
         "ASYNC_DATABASE_URL",
-        "postgresql+asyncpg://user:password@localhost/todo_db"
+        "sqlite+aiosqlite:///./todo.db"
     )
     database_echo: bool = os.getenv("DATABASE_ECHO", "False").lower() == "true"
 

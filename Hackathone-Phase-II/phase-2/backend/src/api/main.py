@@ -9,6 +9,10 @@ from .routes.auth import router as auth_router
 from ..config import settings
 from ..utils.error_handlers import add_exception_handlers
 from ..middleware.security import SecurityHeadersMiddleware
+from sqlmodel import SQLModel
+from ..database.database import sync_engine
+from ..models.user import User
+from ..models.task import Task
 
 
 @asynccontextmanager
@@ -20,6 +24,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
     # Startup
     print("Starting up Todo Backend API...")
+
+    # Create database tables
+    print("Creating database tables...")
+    SQLModel.metadata.create_all(bind=sync_engine)
+    print("Database tables created successfully.")
 
     # Add exception handlers
     add_exception_handlers(app)

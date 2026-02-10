@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer
 from typing import Optional
 from datetime import timedelta, datetime
@@ -70,14 +71,25 @@ async def signup_user(
             data={"sub": str(db_user.id)}, expires_delta=access_token_expires
         )
 
-        return {
+        response = JSONResponse(content={
             "success": True,
             "data": {
                 "user": UserRead.model_validate(db_user),
                 "access_token": access_token,
                 "token_type": "bearer"
             }
-        }
+        })
+
+        # Set JWT as an HTTP-only cookie
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            expires=access_token_expires.total_seconds(),
+            httponly=True,
+            samesite="lax",
+            # secure=True # Use secure=True in production with HTTPS
+        )
+        return response
     except HTTPException:
         raise
     except Exception as e:
@@ -98,21 +110,49 @@ async def signin_user(
     Authenticate user with enhanced error handling to differentiate between email and password errors.
     """
     try:
-        # Use the enhanced authentication service that provides detailed error messages
-        auth_result = auth_service.authenticate_user_detailed_errors(
-            session=session,
-            email=signin_request.email,
-            password=signin_request.password
+        # Find user by email
+        statement = select(User).where(User.email == signin_request.email)
+        result = await session.execute(statement)
+        user = result.scalar_one_or_none()
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+
+        # Verify the provided password against the stored hash
+        if not verify_password(signin_request.password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+
+        # Create access token
+        access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+        access_token = create_access_token(
+            data={"sub": str(user.id)}, expires_delta=access_token_expires
         )
 
-        return {
+        response = JSONResponse(content={
             "success": True,
             "data": {
-                "user": UserRead.model_validate(auth_result["user"]),
-                "access_token": auth_result["token"],
+                "user": UserRead.model_validate(user),
+                "access_token": access_token,
                 "token_type": "bearer"
             }
-        }
+        })
+
+        # Set JWT as an HTTP-only cookie
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            expires=access_token_expires.total_seconds(),
+            httponly=True,  # HttpOnly flag prevents client-side access
+            samesite="lax", # Lax for CSRF protection
+            # secure=True # Use secure=True in production with HTTPS
+        )
+        return response
     except AuthException as e:
         # Map our custom exceptions to appropriate HTTP responses
         status_code = status.HTTP_401_UNAUTHORIZED
@@ -514,10 +554,22 @@ async def register_user(
             data={"sub": str(db_user.id)}, expires_delta=access_token_expires
         )
 
+        # Create a UserRead instance manually to avoid serialization issues
+        user_read = UserRead(
+            id=db_user.id,
+            email=db_user.email,
+            name=db_user.name,
+            date_of_birth=db_user.date_of_birth,
+            signup_date=db_user.signup_date,
+            force_password_change=db_user.force_password_change,
+            created_at=db_user.created_at,
+            updated_at=db_user.updated_at
+        )
+
         return {
             "success": True,
             "data": {
-                "user": UserRead.model_validate(db_user),
+                "user": user_read,
                 "access_token": access_token,
                 "token_type": "bearer"
             }
