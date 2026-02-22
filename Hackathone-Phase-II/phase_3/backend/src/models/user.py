@@ -6,11 +6,13 @@ from sqlmodel import Field, SQLModel
 class UserBase(SQLModel):
     """Base model for User with common fields."""
     email: str = Field(unique=True, nullable=False, max_length=255)
+    username: Optional[str] = Field(default=None, nullable=True, max_length=255)  # String identifier for MCP tools
 
 
 class User(UserBase, table=True):
     """User model for the database table."""
     id: Optional[int] = Field(default=None, primary_key=True)
+    username: Optional[str] = Field(default=None, nullable=True, unique=True, max_length=255)  # String identifier for MCP tools
     password: str = Field(nullable=False, max_length=255)  # Hashed password
     name: Optional[str] = Field(default=None, max_length=255)  # Optional name field
     date_of_birth: Optional[date] = Field(default=None, nullable=True)  # Date of birth
@@ -25,11 +27,13 @@ class UserCreate(UserBase):
     password: str
     name: Optional[str] = None
     date_of_birth: Optional[Union[str, datetime]] = None  # Date of birth as string or datetime
+    # username is inherited from UserBase
 
 
 class UserRead(UserBase):
     """Model for reading user data."""
     id: int
+    username: str  # Include username in read model
     name: Optional[str] = None
     date_of_birth: Optional[date] = None
     signup_date: datetime  # Include signup_date in read model

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class ConversationBase(SQLModel):
     """Base model for Conversation with common fields."""
     title: str = Field(default="New Conversation", max_length=255)
-    user_id: int = Field(foreign_key="user.id")
+    user_id: str = Field(index=True)  # String identifier for user (matches database schema)
 
 
 class Conversation(ConversationBase, table=True):

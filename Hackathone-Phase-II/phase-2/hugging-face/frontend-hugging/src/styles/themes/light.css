@@ -1,0 +1,53 @@
+/* Light theme CSS with pink & off-white palette (black text) */
+
+[data-theme="light"] {
+  --bg-primary: #F8F8F8;
+  --bg-secondary: #FFFFFF;
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --border-color: #DDDDDD;
+  --accent-primary: #FF69B4; /* pink */
+  --accent-secondary: #E8E8E8;
+
+  /* Background colors */
+  --bg-card: #FFFFFF;
+  --bg-modal: #F8F8F8;
+  --bg-header: #FFFFFF;
+
+  /* Text colors */
+  --text-heading: #000000;
+  --text-body: #333333;
+  --text-muted: #888888;
+
+  /* Border colors */
+  --border-input: #DDDDDD;
+  --border-card: #EEEEEE;
+
+  /* State colors */
+  --color-success: #00AA00;
+  --color-warning: #AAAA00;
+  --color-error: #CC0000;
+  --color-info: #0000CC;
+}
+
+/* Apply light theme styles */
+[data-theme="light"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .card,
+[data-theme="light"] .modal,
+[data-theme="light"] .container {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: var(--bg-primary);
+  border-color: var(--border-input);
+  color: var(--text-primary);
+}

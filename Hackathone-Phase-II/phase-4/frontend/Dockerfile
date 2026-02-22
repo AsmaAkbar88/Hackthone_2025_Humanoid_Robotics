@@ -30,19 +30,16 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Copy the built application and dependencies from builder stage
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next/standalone ./standalone
+COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules ./node_modules
 
 # Expose port 3000
 EXPOSE 3000
 
-# Set the hostname to allow external connections
-ENV HOSTNAME=0.0.0.0
-
 # Start the application
-CMD ["node", "standalone/server.js"]
+CMD ["node", "server.js"]

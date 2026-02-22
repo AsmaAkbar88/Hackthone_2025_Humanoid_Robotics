@@ -5,11 +5,11 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # Database settings
-    database_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://user:password@localhost/todo_db")
+    # Database settings - using Neon PostgreSQL database
+    database_url: str = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_ZHpDlAIVvQ67@ep-late-star-aip8khsg-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require")
     async_database_url: str = os.getenv(
         "ASYNC_DATABASE_URL",
-        "postgresql+asyncpg://user:password@localhost/todo_db"
+        "postgresql+asyncpg://neondb_owner:npg_ZHpDlAIVvQ67@ep-late-star-aip8khsg-pooler.c-4.us-east-1.aws.neon.tech/neondb?ssl=true"
     )
     database_echo: bool = os.getenv("DATABASE_ECHO", "False").lower() == "true"
 

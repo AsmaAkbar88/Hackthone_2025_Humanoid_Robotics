@@ -1,32 +1,30 @@
 from typing import Optional
-from datetime import datetime
-from sqlmodel import Field, SQLModel
+from datetime import datetime, timezone
+from uuid import UUID, uuid4
+
+from sqlmodel import Field, SQLModel, Column
 
 
-class AuthenticationSessionBase(SQLModel):
-    """Base model for Authentication Session with common fields."""
-    user_id: str = Field(nullable=False)  # Reference to associated user
+class SessionBase(SQLModel):
+    """Base model for Session with common fields."""
+    user_id: str = Field(index=True, nullable=False)  # Reference to associated user
     expires_at: datetime = Field(nullable=False)  # Session expiration time
 
 
-class AuthenticationSession(AuthenticationSessionBase, table=True):
-    """Authentication Session model for the database table."""
-    session_id: Optional[str] = Field(default=None, primary_key=True)
-    user_id: str = Field(nullable=False)  # Reference to associated user
-    jwt_token: str = Field(nullable=False, max_length=500)  # JWT token for session management
+class Session(SessionBase, table=True):
+    """Session model for the database table."""
+    id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True, sa_column=Column(UUID(as_uuid=True), primary_key=True, default=uuid4))
+    user_id: str = Field(index=True, nullable=False)  # Reference to associated user
     expires_at: datetime = Field(nullable=False)  # Session expiration time
-    created_at: datetime = Field(default_factory=datetime.now, nullable=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
 
-class AuthenticationSessionCreate(AuthenticationSessionBase):
-    """Model for creating a new authentication session."""
-    jwt_token: str
-    user_id: str
-    expires_at: datetime
+class SessionCreate(SessionBase):
+    """Model for creating a new session."""
+    pass
 
 
-class AuthenticationSessionRead(AuthenticationSessionBase):
-    """Model for reading authentication session data."""
-    session_id: str
-    jwt_token: str
+class SessionRead(SessionBase):
+    """Model for reading session data."""
+    id: UUID
     created_at: datetime

@@ -1,39 +1,66 @@
 from sqlmodel import create_engine, Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-import urllib.parse
+from urllib.parse import urlparse, parse_qs, urlencode
 
 from ..config import settings
 
 # Helper function to clean database URLs for asyncpg compatibility
 def clean_database_url(url: str, is_async: bool = True) -> str:
-    """Remove query parameters that asyncpg doesn't support"""
-    if '?' in url:
-        base_url, params = url.split('?', 1)
-        param_dict = dict(p.split('=') for p in params.split('&') if '=' in p)
-        
-        # For asyncpg, we need to be selective about which parameters are supported
-        if is_async:
-            # Only keep parameters that asyncpg supports
-            supported_params = {}
-            for key, value in param_dict.items():
-                # asyncpg supports sslmode but through different mechanisms
-                if key.lower() not in ['channel_binding']:  # Remove unsupported parameters
-                    supported_params[key] = value
-        else:
-            # For sync psycopg2, most parameters are supported
-            supported_params = param_dict
-        
-        if supported_params:
-            cleaned_params = '&'.join([f"{k}={v}" for k, v in supported_params.items()])
-            return f"{base_url}?{cleaned_params}"
-        else:
-            return base_url
-    return url
+    """Remove query parameters that asyncpg doesn't support and ensure SSL is configured"""
+    # Skip processing for SQLite
+    if url.startswith('sqlite'):
+        return url
 
-# Clean URLs for asyncpg compatibility
+    try:
+        # Parse the URL properly
+        parsed = urlparse(url)
+        query_params = parse_qs(parsed.query) if parsed.query else {}
+
+        if is_async:
+            # For async (asyncpg), remove parameters that asyncpg doesn't support
+            # asyncpg doesn't support 'channel_binding' or 'sslmode' parameters
+            # It handles SSL automatically for secure connections
+            params_to_remove = ['channel_binding', 'sslmode', 'ssl']
+            for param in params_to_remove:
+                if param in query_params:
+                    del query_params[param]
+        else:
+            # For sync (psycopg2), keep sslmode=require format
+            # Just remove channel_binding which psycopg2 doesn't support
+            if 'channel_binding' in query_params:
+                del query_params['channel_binding']
+            # Ensure sslmode is set to require for secure connection
+            if 'sslmode' not in query_params:
+                query_params['sslmode'] = ['require']
+
+        # Rebuild the query string
+        cleaned_params = urlencode(query_params, doseq=True)
+
+        # Rebuild the URL
+        cleaned_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+        if cleaned_params:
+            cleaned_url += f"?{cleaned_params}"
+
+        return cleaned_url
+    except Exception as e:
+        print(f"Error cleaning database URL: {e}")
+        # Fallback: just remove the problematic params manually
+        base_url = url.split('?')[0]
+        if is_async:
+            return f"{base_url}?ssl=true"
+        else:
+            return f"{base_url}?sslmode=require"
+
+# Clean URLs for asyncpg compatibility (skip for SQLite)
 clean_sync_url = clean_database_url(settings.database_url, is_async=False)
 clean_async_url = clean_database_url(settings.async_database_url, is_async=True)
+
+# Optional: Enable debug prints if needed - commented out by default
+# print(f"DEBUG: Original sync URL: {settings.database_url}")
+# print(f"DEBUG: Cleaned sync URL: {clean_sync_url}")
+# print(f"DEBUG: Original async URL: {settings.async_database_url}")
+# print(f"DEBUG: Cleaned async URL: {clean_async_url}")
 
 # Determine if we're using SQLite (which doesn't support pooling parameters)
 is_sqlite_sync = clean_sync_url.startswith('sqlite')
@@ -77,13 +104,6 @@ else:
         pool_size=5,                  # Number of connections to maintain
         max_overflow=10,              # Additional connections beyond pool_size
         pool_timeout=30,              # Timeout for getting connection from pool
-        connect_args={
-            "server_settings": {
-                "application_name": "todo-backend",
-            },
-            "statement_cache_size": 0,  # Disable statement caching to avoid issues with Neon schema changes
-            "command_timeout": 30,
-        }
     )
 
 # Session makers

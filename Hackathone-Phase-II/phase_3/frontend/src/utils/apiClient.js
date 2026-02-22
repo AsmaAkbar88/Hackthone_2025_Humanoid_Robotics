@@ -1,5 +1,5 @@
 import axios from 'axios';
-import authService from '../services/authService';
+import { apiClient as mainApiClient } from '../services/api-client'; // Import the main API client
 
 // Create an Axios instance
 const apiClient = axios.create({
@@ -10,9 +10,9 @@ const apiClient = axios.create({
 // Request interceptor to add auth headers
 apiClient.interceptors.request.use(
   (config) => {
-    const token = authService.getAccessToken();
+    const token = mainApiClient.getAuthToken(); // Use the main API client's token
 
-    if (token && !authService.isTokenExpired(token)) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -31,12 +31,10 @@ apiClient.interceptors.response.use(
   (error) => {
     // Handle 401 Unauthorized responses (token expired or invalid)
     if (error.response && error.response.status === 401) {
-      // Token might be expired, try to refresh it
-      // For simplicity, we'll just logout the user
-      // In a more advanced implementation, you might try to refresh the token
-
-      // Redirect to login page
-      authService.clearTokens();
+      // Token might be expired or invalid
+      
+      // Clear token using main API client
+      mainApiClient.clearAuthToken();
 
       // Redirect to login page using window.location
       if (typeof window !== 'undefined') {
@@ -53,8 +51,9 @@ apiClient.interceptors.response.use(
 const apiCall = async (method, url, data = null, options = {}) => {
   try {
     // Check if token is still valid before making the request
-    if (!authService.isAuthenticated()) {
-      // Token is expired or not available, redirect to login
+    const token = mainApiClient.getAuthToken();
+    if (!token) {
+      // Token is not available, redirect to login
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
         return Promise.reject(new Error('Not authenticated'));
@@ -92,7 +91,7 @@ const apiCall = async (method, url, data = null, options = {}) => {
 
       if (status === 401) {
         // Unauthorized - token expired or invalid
-        authService.clearTokens();
+        mainApiClient.clearAuthToken();
 
         if (typeof window !== 'undefined') {
           window.location.href = '/login';

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, ReactNode } from 'react';
 import { AuthContext, type AuthContextType, type User } from './authContext';
+import { apiClient } from '../services/api-client';
+import { authService } from '../services/auth-service';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,26 +14,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     // Check if user is already logged in when app loads
     const initAuth = async () => {
-      const savedToken = localStorage.getItem('authToken');
-      if (savedToken) {
-        try {
-          // Verify token and get user info
-          const isValid = await checkAuthStatus();
-          if (isValid) {
-            setToken(savedToken);
-            setIsAuthenticated(true);
-          } else {
-            // Token is invalid, clear it
-            localStorage.removeItem('authToken');
-            setToken(null);
-            setIsAuthenticated(false);
-          }
-        } catch (error) {
-          console.error('Error initializing auth:', error);
-          localStorage.removeItem('authToken');
-          setToken(null);
-          setIsAuthenticated(false);
+      try {
+        // Verify token and get user info
+        const currentUser = await authService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          setIsAuthenticated(true);
         }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        // Clear any invalid tokens
+        apiClient.clearAuthToken();
+        setToken(null);
+        setIsAuthenticated(false);
       }
       setLoading(false);
     };
@@ -40,19 +35,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const checkAuthStatus = async (): Promise<boolean> => {
-    const token = localStorage.getItem('authToken');
-    if (!token) return false;
-
     try {
-      const response = await fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
+      const currentUser = await authService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
         return true;
       } else {
         return false;
@@ -65,29 +51,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string): Promise<void> => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const result = await authService.login({ email, password });
+      const { user } = result;
 
-      if (response.ok) {
-        const data = await response.json();
-        const { token, user } = data;
-
-        // Save token to localStorage
-        localStorage.setItem('authToken', token);
-
-        // Set user and auth state
-        setUser(user);
-        setToken(token);
-        setIsAuthenticated(true);
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
-      }
+      // Token is now handled by apiClient internally
+      setUser(user);
+      setIsAuthenticated(true);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -96,21 +65,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const register = async (email: string, password: string): Promise<void> => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const result = await authService.register({ email, password, name: '', dateOfBirth: '' });
+      const { user } = result;
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Registration failed');
-      }
-
-      // Registration successful, now login
-      await login(email, password);
+      // Token is now handled by apiClient internally
+      setUser(user);
+      setIsAuthenticated(true);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -118,8 +78,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = (): void => {
-    // Remove token from localStorage
-    localStorage.removeItem('authToken');
+    // Clear token from memory via apiClient
+    apiClient.clearAuthToken();
 
     // Reset state
     setUser(null);
@@ -129,29 +89,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Handle token expiration automatically
   useEffect(() => {
-    if (!token) return;
-
-    const handleExpiredToken = () => {
-      logout();
-      window.location.href = '/login'; // Redirect to login page
-    };
-
-    // Listen for 401 responses indicating token expiration
-    const originalFetch = window.fetch;
-    window.fetch = async (...args) => {
-      const response = await originalFetch(...args);
-
-      if (response.status === 401) {
-        handleExpiredToken();
-      }
-
-      return response;
-    };
-
-    return () => {
-      window.fetch = originalFetch;
-    };
-  }, [token]);
+    // Token handling is now centralized in apiClient
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>; // Or a spinner component
@@ -161,7 +100,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider
       value={{
         user,
-        token,
+        token: apiClient.getAuthToken(),
         isAuthenticated,
         login,
         logout,

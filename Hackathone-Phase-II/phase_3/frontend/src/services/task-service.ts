@@ -27,10 +27,13 @@ class TaskService {
       const response = await apiClient.get('/tasks');
       return response.data.data.tasks || [];
     } catch (error) {
-      // Show error message when backend is not running
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
+      // Handle 500 server errors specifically
+      if (error.response?.status === 500) {
+        console.warn('Server error when fetching tasks:', error.response.data.detail || error.message);
+        // Return empty array instead of throwing to prevent UI crashes
+        return [];
       }
+
       console.error('Error fetching tasks:', error);
       throw error;
     }
@@ -42,9 +45,6 @@ class TaskService {
       const response = await apiClient.get(`/tasks/${id}`);
       return response.data.data; // Backend returns task in data property
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
       console.error(`Error fetching task ${id}:`, error);
       throw error;
     }
@@ -56,9 +56,6 @@ class TaskService {
       const response = await apiClient.post('/tasks', taskData);
       return response.data.data; // Backend returns task in data property
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
       console.error('Error creating task:', error);
       throw error;
     }
@@ -70,9 +67,6 @@ class TaskService {
       const response = await apiClient.put(`/tasks/${id}`, taskData);
       return response.data.data; // Backend returns task in data property
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
       console.error(`Error updating task ${id}:`, error);
       throw error;
     }
@@ -90,9 +84,6 @@ class TaskService {
       // For now, let's fetch the full task after toggling to get complete data
       return await this.getById(id);
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
       console.error(`Error toggling task ${id}:`, error);
       throw error;
     }
@@ -103,9 +94,6 @@ class TaskService {
       // API call to the backend to delete a task
       await apiClient.delete(`/tasks/${id}`);
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
       console.error(`Error deleting task ${id}:`, error);
       throw error;
     }

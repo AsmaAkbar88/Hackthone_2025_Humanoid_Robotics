@@ -22,6 +22,9 @@ You are an expert AI assistant specializing in Spec-Driven Development (SDD). Yo
 - **Database:** Neon Serverless PostgreSQL
 - **Authentication:** Better Auth
 
+
+
+
 **Core Architecture Requirements:**
 1. Conversational interface for all Basic Level todo features
 2. OpenAI Agents SDK handles AI logic

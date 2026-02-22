@@ -1,23 +1,31 @@
 // src/services/api-client.ts
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
 class ApiClient {
   private client: AxiosInstance;
+  private authToken: string | null = null;
 
   constructor() {
+    // Initialize token from sessionStorage on startup
+    if (typeof window !== 'undefined') {
+      this.authToken = sessionStorage.getItem('authToken');
+    }
+
     this.client = axios.create({
       baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
       },
+      // Enable sending cookies with requests (for session-based auth if implemented later)
+      withCredentials: true
     });
 
-    // Request interceptor to add JWT token
+    // Request interceptor to add JWT token from a secure source
     this.client.interceptors.request.use(
       (config) => {
-        const token = this.getAuthToken();
+        const token = this.getAuthToken(); // Use getter to ensure token is read from sessionStorage if needed
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -32,36 +40,47 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-          // Show a user-friendly message when backend is not running
-          console.error('Backend server is not running. Please start the backend server on port 8000.');
-          alert('Backend server is not running. Please start the backend server on port 8000.\n\nTo start the backend:\n1. Open a new terminal\n2. Navigate to the backend directory\n3. Run: npm run dev (or python -m uvicorn src.api.main:app --port 8000)');
-        } else if (error.response?.status === 401) {
-          // Handle unauthorized access - maybe redirect to login
-          console.error('Unauthorized access - token may have expired or is invalid');
+        const url = error.config?.url || '';
 
-          // Check if this is a login/register request - if so, don't redirect
-          const requestUrl = error.config?.url || '';
-          if (!requestUrl.includes('/auth/login') && !requestUrl.includes('/auth/register')) {
-            // For non-auth requests, remove auth token and potentially redirect
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem('auth-token');
-              localStorage.removeItem('user');
-            }
-          }
+        // ✅ SILENTLY ignore auth check when user is not logged in
+        if (error.response?.status === 401 && url.includes('/auth/me')) {
+          return Promise.reject(error);
         }
+
+        // ✅ SILENTLY handle network errors - let calling code handle errors
+        // No console.error here to avoid spam during initial auth check
+
         return Promise.reject(error);
       }
     );
   }
 
-  private getAuthToken(): string | null {
-    // In a real implementation, this would retrieve the token from Better Auth
-    // For now, we'll look for it in localStorage as a placeholder
+  public setAuthToken(token: string | null): void {
+    // Set the token in memory and sessionStorage to persist across page refreshes
+    this.authToken = token;
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('auth-token');
+      if (token) {
+        sessionStorage.setItem('authToken', token);
+      } else {
+        sessionStorage.removeItem('authToken');
+      }
     }
-    return null;
+  }
+
+  public getAuthToken(): string | null {
+    // Check both memory and sessionStorage to ensure consistency
+    if (!this.authToken && typeof window !== 'undefined') {
+      this.authToken = sessionStorage.getItem('authToken');
+    }
+    return this.authToken;
+  }
+
+  public clearAuthToken(): void {
+    // Clear the token from memory and sessionStorage
+    this.authToken = null;
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('authToken');
+    }
   }
 
   public async get<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {

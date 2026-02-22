@@ -56,9 +56,13 @@ async def get_current_user(
     created_at = user.created_at or datetime.utcnow()
     updated_at = user.updated_at or datetime.utcnow()
 
+    # Generate username if not set (for response only, not database update)
+    username = user.username or f"{user.email.split('@')[0]}_{int(datetime.utcnow().timestamp())}"
+
     return UserRead(
         id=user.id,
         email=user.email,
+        username=username,
         name=user.name,
         date_of_birth=user.date_of_birth,
         signup_date=user.signup_date,

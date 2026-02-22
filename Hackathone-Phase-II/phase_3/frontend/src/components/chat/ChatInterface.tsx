@@ -1,8 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import useChat from '../../hooks/useChat';
+import { useTasks } from '@/hooks/useTasks';
 
 const ChatInterface = ({ conversationId = null }) => {
   const { messages, isLoading, error, sendMessage } = useChat();
+  const { 
+    createTask: createGlobalTask, 
+    fetchTasks, 
+    state: tasksState,
+    updateTask,
+    deleteTask
+  } = useTasks(); // Access the global task context
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -11,7 +19,23 @@ const ChatInterface = ({ conversationId = null }) => {
     if (!inputValue.trim()) return;
 
     // Send the message
-    await sendMessage(inputValue, conversationId);
+    const response = await sendMessage(inputValue, conversationId);
+
+    // After sending the message, check if it triggered any task operations
+    // and update the global task state immediately
+    if (response && response.success && response.actions_taken && Array.isArray(response.actions_taken)) {
+      // Check if any of the actions were task-related
+      const taskActions = response.actions_taken.filter(action =>
+        action && action.action && ['task_created', 'task_completed', 'task_updated', 'task_deleted'].includes(action.action)
+      );
+
+      if (taskActions.length > 0) {
+        // Refresh all tasks to sync with backend
+        // This ensures that the dashboard gets updated with the new task
+        await fetchTasks();
+      }
+    }
+
     setInputValue(''); // Clear the input after sending
   };
 

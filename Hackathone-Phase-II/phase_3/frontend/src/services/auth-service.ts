@@ -34,7 +34,7 @@ interface User {
 }
 
 class AuthService {
-  async login(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
+  async login(credentials: LoginCredentials): Promise<{ user: User; token?: string }> {
     console.log('Login attempt with:', credentials);
 
     try {
@@ -50,27 +50,29 @@ class AuthService {
         force_password_change: false  // Override to prevent unwanted notifications
       };
 
+      // Store the token in memory only
+      apiClient.setAuthToken(data.access_token);
+
       return {
-        user,
-        token: data.access_token
+        user
       };
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
+      if (error.response) {
+        if (error.response.status === 401) {
+          throw new Error(
+            error.response.data?.detail || 'Invalid email or password'
+          );
+        }
+
+        throw new Error('Login failed. Please try again.');
       }
 
-      // Handle 401 errors specifically
-      if (error.response?.status === 401) {
-        const errorDetail = error.response.data?.detail || 'Invalid email or password';
-        throw new Error(errorDetail);
-      }
-
-      console.error('Login error:', error);
-      throw error;
+      // Only here for real network issues
+      throw error; // Re-throw the original error instead of a hardcoded message
     }
   }
 
-  async register(userData: RegisterData): Promise<{ user: User; token: string }> {
+  async register(userData: RegisterData): Promise<{ user: User; token?: string }> {
     console.log('Register attempt with:', userData);
 
     // Validate date format before sending to backend
@@ -128,29 +130,30 @@ class AuthService {
         force_password_change: false  // Override to prevent unwanted notifications
       };
 
+      // Store the token in memory only
+      apiClient.setAuthToken(backendUserData.access_token);
+
       return {
-        user: user as User,
-        token: backendUserData.access_token
+        user: user as User
       };
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
+      if (error.response) {
+        if (error.response.status === 401) {
+          throw new Error(
+            error.response.data?.detail || 'Registration failed'
+          );
+        }
+
+        if (error.response.status === 400) {
+          throw new Error(
+            error.response.data?.detail || 'Invalid input data'
+          );
+        }
+
+        throw new Error('Registration failed. Please try again.');
       }
 
-      // Handle 401 errors specifically
-      if (error.response?.status === 401) {
-        const errorDetail = error.response.data?.detail || 'Registration failed';
-        throw new Error(errorDetail);
-      }
-
-      // Handle 400 errors (validation errors)
-      if (error.response?.status === 400) {
-        const errorDetail = error.response.data?.detail || 'Invalid input data';
-        throw new Error(errorDetail);
-      }
-
-      console.error('Registration error:', error);
-      throw error;
+      throw error; // Re-throw the original error instead of a hardcoded message
     }
   }
 
@@ -165,21 +168,23 @@ class AuthService {
       });
       return response.data.success;
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
+      if (error.response) {
+        if (error.response.status === 401) {
+          throw new Error(
+            error.response.data?.detail || 'Verification failed'
+          );
+        }
+
+        if (error.response.status === 400) {
+          throw new Error(
+            error.response.data?.detail || 'Verification failed'
+          );
+        }
+
+        throw new Error('Forgot password request failed. Please try again.');
       }
 
-      // Handle 401 errors specifically
-      if (error.response?.status === 401) {
-        const errorDetail = error.response.data?.detail || 'Verification failed';
-        throw new Error(errorDetail);
-      } else if (error.response?.status === 400) {
-        const errorDetail = error.response.data?.detail || 'Verification failed';
-        throw new Error(errorDetail);
-      }
-
-      console.error('Forgot password error:', error);
-      throw error;
+      throw error; // Re-throw the original error instead of a hardcoded message
     }
   }
 
@@ -194,48 +199,61 @@ class AuthService {
       });
       return response.data.success;
     } catch (error) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
+      if (error.response) {
+        if (error.response.status === 401) {
+          throw new Error(
+            error.response.data?.detail || 'Password reset failed'
+          );
+        }
+
+        if (error.response.status === 400) {
+          throw new Error(
+            error.response.data?.detail || 'Password reset failed'
+          );
+        }
+
+        throw new Error('Password reset failed. Please try again.');
       }
 
-      // Handle 401 errors specifically
-      if (error.response?.status === 401) {
-        const errorDetail = error.response.data?.detail || 'Password reset failed';
-        throw new Error(errorDetail);
-      } else if (error.response?.status === 400) {
-        const errorDetail = error.response.data?.detail || 'Password reset failed';
-        throw new Error(errorDetail);
-      }
-
-      console.error('Reset password error:', error);
-      throw error;
+      throw error; // Re-throw the original error instead of a hardcoded message
     }
   }
 
   async logout(): Promise<void> {
-    // Clear authentication state
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth-token');
-      localStorage.removeItem('user');
+    // Call backend to invalidate session if needed
+    try {
+      await apiClient.post('/auth/logout');
+    } catch (error) {
+      // Even if backend logout fails, continue with frontend cleanup
+      console.error('Logout error:', error);
     }
+    
+    // Clear the token from memory
+    apiClient.clearAuthToken();
   }
 
   async getCurrentUser(): Promise<User | null> {
-    if (typeof window !== 'undefined') {
-      const userStr = localStorage.getItem('user');
-      const user = userStr ? JSON.parse(userStr) : null;
-
-      // Ensure force_password_change flag is handled appropriately to prevent unwanted notifications
-      if (user && user.hasOwnProperty('force_password_change')) {
-        return {
-          ...user,
-          force_password_change: false  // Override to prevent unwanted notifications
-        };
+    try {
+      // Call the backend to verify authentication status
+      const response = await apiClient.get('/auth/me');
+      return response.data.user as User;
+    } catch (error) {
+      // Check if this is a network error vs a 401 unauthorized
+      // Only throw network errors, return null for 401s (which is normal when not logged in)
+      if (error.response) {
+        // If it's a 401 response, it means user is not authenticated, which is normal
+        if (error.response.status === 401) {
+          return null;
+        }
+        // For other HTTP errors, we might want to handle them differently
+        // but for now, return null as the user is not authenticated
+        return null;
+      } else {
+        // This is a network error (no response received), re-throw it
+        // so it can be handled appropriately by the caller
+        throw error;
       }
-
-      return user;
     }
-    return null;
   }
 }
 

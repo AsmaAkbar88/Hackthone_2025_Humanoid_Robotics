@@ -1,6 +1,7 @@
 from typing import List, Optional
 from datetime import datetime
 
+import sqlalchemy as sa
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -13,7 +14,7 @@ class TaskService:
     """Service class for handling task-related business logic."""
 
     @staticmethod
-    async def create_task(session: AsyncSession, task_create: TaskCreate, user_id: int) -> TaskRead:
+    async def create_task(session: AsyncSession, task_create: TaskCreate, user_id: str) -> TaskRead:
         """
         Create a new task for a user.
 
@@ -27,9 +28,12 @@ class TaskService:
         """
         # Create task object with the authenticated user ID
         # We need to create the Task object directly since TaskCreate doesn't include user_id
-        task_data = task_create.model_dump()
-        task_data['user_id'] = user_id  # Add the user_id to the data
-        db_task = Task.model_validate(task_data)
+        db_task = Task(
+            title=task_create.title,
+            description=task_create.description,
+            completed=task_create.completed,
+            user_id=str(user_id)  # Ensure user_id is explicitly set as string
+        )
 
         session.add(db_task)
         await session.commit()
@@ -39,7 +43,7 @@ class TaskService:
         return TaskRead.model_validate(db_task)
 
     @staticmethod
-    async def get_task_by_id(session: AsyncSession, task_id: int, user_id: int) -> TaskRead:
+    async def get_task_by_id(session: AsyncSession, task_id: int, user_id: str) -> TaskRead:
         """
         Get a specific task by ID for a user.
 
@@ -63,8 +67,8 @@ class TaskService:
         if not task_exists:
             raise NotFoundError(message=f"Task with id {task_id} not found")
 
-        # Now check if the user owns the task
-        statement = select(Task).where(Task.id == task_id, Task.user_id == user_id)
+        # Now check if the user owns the task - ensuring both sides are strings for comparison
+        statement = select(Task).where(Task.id == task_id, Task.user_id == str(user_id))
         result = await session.execute(statement)
         task = result.scalar_one_or_none()
 
@@ -75,7 +79,7 @@ class TaskService:
         return TaskRead.model_validate(task)
 
     @staticmethod
-    async def get_tasks_for_user(session: AsyncSession, user_id: int, limit: int = 20, offset: int = 0) -> List[TaskRead]:
+    async def get_tasks_for_user(session: AsyncSession, user_id: str, limit: int = 20, offset: int = 0) -> List[TaskRead]:
         """
         Get all tasks for a specific user.
 
@@ -88,14 +92,14 @@ class TaskService:
         Returns:
             List of tasks as TaskRead objects
         """
-        statement = select(Task).where(Task.user_id == user_id).offset(offset).limit(limit)
+        statement = select(Task).where(Task.user_id == str(user_id)).offset(offset).limit(limit)
         result = await session.execute(statement)
         tasks = result.scalars().all()
 
         return [TaskRead.model_validate(task) for task in tasks]
 
     @staticmethod
-    async def update_task(session: AsyncSession, task_id: int, task_update: TaskUpdate, user_id: int) -> TaskRead:
+    async def update_task(session: AsyncSession, task_id: int, task_update: TaskUpdate, user_id: str) -> TaskRead:
         """
         Update a specific task for a user.
 
@@ -120,8 +124,8 @@ class TaskService:
         if not task_exists:
             raise NotFoundError(message=f"Task with id {task_id} not found")
 
-        # Now check if the user owns the task
-        statement = select(Task).where(Task.id == task_id, Task.user_id == user_id)
+        # Now check if the user owns the task - ensuring both sides are strings for comparison
+        statement = select(Task).where(Task.id == task_id, Task.user_id == str(user_id))
         result = await session.execute(statement)
         task = result.scalar_one_or_none()
 
@@ -143,7 +147,7 @@ class TaskService:
         return TaskRead.model_validate(task)
 
     @staticmethod
-    async def delete_task(session: AsyncSession, task_id: int, user_id: int) -> bool:
+    async def delete_task(session: AsyncSession, task_id: int, user_id: str) -> bool:
         """
         Delete a specific task for a user.
 
@@ -167,8 +171,8 @@ class TaskService:
         if not task_exists:
             raise NotFoundError(message=f"Task with id {task_id} not found")
 
-        # Now check if the user owns the task
-        statement = select(Task).where(Task.id == task_id, Task.user_id == user_id)
+        # Now check if the user owns the task - ensuring both sides are strings for comparison
+        statement = select(Task).where(Task.id == task_id, Task.user_id == str(user_id))
         result = await session.execute(statement)
         task = result.scalar_one_or_none()
 
@@ -182,7 +186,7 @@ class TaskService:
         return True
 
     @staticmethod
-    async def toggle_task_completion(session: AsyncSession, task_id: int, user_id: int) -> TaskRead:
+    async def toggle_task_completion(session: AsyncSession, task_id: int, user_id: str) -> TaskRead:
         """
         Toggle the completion status of a specific task.
 
@@ -206,8 +210,8 @@ class TaskService:
         if not task_exists:
             raise NotFoundError(message=f"Task with id {task_id} not found")
 
-        # Now check if the user owns the task
-        statement = select(Task).where(Task.id == task_id, Task.user_id == user_id)
+        # Now check if the user owns the task - ensuring both sides are strings for comparison
+        statement = select(Task).where(Task.id == task_id, Task.user_id == str(user_id))
         result = await session.execute(statement)
         task = result.scalar_one_or_none()
 
@@ -226,7 +230,7 @@ class TaskService:
         return TaskRead.model_validate(task)
 
     @staticmethod
-    async def verify_task_ownership(session: AsyncSession, task_id: int, user_id: int) -> bool:
+    async def verify_task_ownership(session: AsyncSession, task_id: int, user_id: str) -> bool:
         """
         Verify if a user owns a specific task.
 
@@ -238,7 +242,7 @@ class TaskService:
         Returns:
             True if the user owns the task, False otherwise
         """
-        statement = select(Task).where(Task.id == task_id, Task.user_id == user_id)
+        statement = select(Task).where(Task.id == task_id, Task.user_id == str(user_id))
         result = await session.execute(statement)
         task = result.scalar_one_or_none()
 

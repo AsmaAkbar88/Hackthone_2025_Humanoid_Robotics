@@ -204,11 +204,8 @@ async def forgot_password(
             )
 
         # Verify the date of birth matches
-        print(f"DEBUG: Looking up user by email: {request_data.email}")
-        print(f"DEBUG: Found user date_of_birth: {user.date_of_birth} (type: {type(user.date_of_birth)})")
 
         if not user.date_of_birth:
-            print(f"DEBUG: User has no date of birth set in database")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Date of birth verification failed. Please contact support."
@@ -225,7 +222,6 @@ async def forgot_password(
             )
 
         # Compare dates (ignoring time component)
-        print(f"DEBUG: Comparing user.date_of_birth: {user.date_of_birth} with provided: {provided_dob.date()}")
 
         if user.date_of_birth != provided_dob.date():  # Both should be date objects now
             raise HTTPException(
@@ -453,16 +449,6 @@ async def login_for_access_token(
         )
 
 
-# Also add a test endpoint that doesn't require auth to verify the token works
-@router.get("/test-token", response_model=dict)
-async def test_token():
-    """
-    Test endpoint to verify authentication is working.
-    """
-    return {
-        "message": "Token is valid!",
-        "success": True
-    }
 
 
 @router.post("/register", response_model=dict)
@@ -490,45 +476,35 @@ async def register_user(
 
         # Create new user with hashed password, optional name and date of birth
         from datetime import datetime, date
-        date_of_birth_obj = None
 
-        # Debug: Print incoming date of birth for troubleshooting
-        print(f"DEBUG: Incoming date_of_birth value: {user_create.date_of_birth}, type: {type(user_create.date_of_birth)}")
 
         # Handle date of birth conversion - supports string, date, or datetime objects
+        date_of_birth_obj = None  # Initialize to None
         if user_create.date_of_birth is not None:
             dob_input = user_create.date_of_birth
 
-            print(f"DEBUG: Processing date of birth input: {dob_input}, type: {type(dob_input)}")
-
+            # Handle different types of date of birth input
             if isinstance(dob_input, str):
                 # Handle string input - strip whitespace and parse
                 dob_str = dob_input.strip()
-                print(f"DEBUG: String date stripped: '{dob_str}'")
                 if dob_str:  # Only process if not empty after stripping
                     try:
                         # Parse string to date object (to match database schema)
                         date_of_birth_obj = datetime.strptime(dob_str, '%Y-%m-%d').date()
-                        print(f"DEBUG: Successfully parsed date: {date_of_birth_obj}")
                     except ValueError as e:
                         # Handle invalid date format
-                        print(f"Date of birth parsing error: {e}")
                         raise HTTPException(
                             status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Invalid date of birth format. Please use YYYY-MM-DD format."
                         )
-            elif isinstance(dob_input, date):
-                # If it's already a date object, use it as is
-                date_of_birth_obj = dob_input
-                print(f"DEBUG: Using date object directly: {date_of_birth_obj}")
-            elif isinstance(dob_input, datetime):
-                # If it's a datetime object, convert to date to match database schema
-                date_of_birth_obj = dob_input.date()
-                print(f"DEBUG: Converted datetime to date: {date_of_birth_obj}")
-        else:
-            print("DEBUG: No date of birth provided in request")
-
-        print(f"DEBUG: Final date_of_birth_obj value: {date_of_birth_obj}")
+            else:
+                # Handle date and datetime objects
+                if isinstance(dob_input, date):
+                    # If it's already a date object, use it as is
+                    date_of_birth_obj = dob_input
+                elif isinstance(dob_input, datetime):
+                    # If it's a datetime object, convert to date to match database schema
+                    date_of_birth_obj = dob_input.date()
 
         # Use current time as signup_date if not provided in the request
         current_time = datetime.utcnow()
@@ -545,8 +521,6 @@ async def register_user(
         await session.commit()
         await session.refresh(db_user)
 
-        # Additional debug: Check what was actually saved
-        print(f"DEBUG: User saved with date_of_birth: {db_user.date_of_birth}, signup_date: {db_user.signup_date}")
 
         # Create access token
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)

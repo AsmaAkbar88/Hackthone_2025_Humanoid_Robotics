@@ -32,16 +32,37 @@ async def get_tasks(
         Dictionary containing tasks and total count
     """
     try:
+        print(f"Getting tasks for user ID: {current_user.id}")
         tasks = await TaskService.get_tasks_for_user(session, current_user.id, limit, offset)
+        print(f"Retrieved {len(tasks)} tasks from database")
+
+        # Convert tasks to dict to ensure proper serialization
+        task_dicts = []
+        for task in tasks:
+            task_dict = {
+                "id": task.id,
+                "title": task.title,
+                "description": task.description,
+                "completed": task.completed,
+                "user_id": task.user_id,
+                "created_at": task.created_at.isoformat() if task.created_at else None,
+                "updated_at": task.updated_at.isoformat() if task.updated_at else None
+            }
+            task_dicts.append(task_dict)
+
+        print(f"Successfully converted {len(task_dicts)} tasks to dict format")
 
         return {
             "success": True,
             "data": {
-                "tasks": tasks,
-                "total": len(tasks)  # In a real implementation, this would come from a count query
+                "tasks": task_dicts,
+                "total": len(task_dicts)
             }
         }
     except Exception as e:
+        print(f"Error in get_tasks: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unable to retrieve tasks: {str(e)}"
@@ -69,11 +90,25 @@ async def create_task(
         # Create the task with the authenticated user's ID
         created_task = await TaskService.create_task(session, task_create, current_user.id)
 
+        # Convert to dict to ensure proper serialization
+        task_dict = {
+            "id": created_task.id,
+            "title": created_task.title,
+            "description": created_task.description,
+            "completed": created_task.completed,
+            "user_id": created_task.user_id,
+            "created_at": created_task.created_at.isoformat() if created_task.created_at else None,
+            "updated_at": created_task.updated_at.isoformat() if created_task.updated_at else None
+        }
+
         return {
             "success": True,
-            "data": created_task
+            "data": task_dict
         }
     except Exception as e:
+        print(f"Error in create_task: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Unable to create task: {str(e)}"
@@ -100,14 +135,28 @@ async def get_task(
     try:
         task = await TaskService.get_task_by_id(session, task_id, current_user.id)
 
+        # Convert to dict to ensure proper serialization
+        task_dict = {
+            "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "completed": task.completed,
+            "user_id": task.user_id,
+            "created_at": task.created_at.isoformat() if task.created_at else None,
+            "updated_at": task.updated_at.isoformat() if task.updated_at else None
+        }
+
         return {
             "success": True,
-            "data": task
+            "data": task_dict
         }
     except HTTPException:
         # Re-raise HTTP exceptions as-is
         raise
     except Exception as e:
+        print(f"Error in get_task: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unable to retrieve task: {str(e)}"
@@ -136,14 +185,28 @@ async def update_task(
     try:
         updated_task = await TaskService.update_task(session, task_id, task_update, current_user.id)
 
+        # Convert to dict to ensure proper serialization
+        task_dict = {
+            "id": updated_task.id,
+            "title": updated_task.title,
+            "description": updated_task.description,
+            "completed": updated_task.completed,
+            "user_id": updated_task.user_id,
+            "created_at": updated_task.created_at.isoformat() if updated_task.created_at else None,
+            "updated_at": updated_task.updated_at.isoformat() if updated_task.updated_at else None
+        }
+
         return {
             "success": True,
-            "data": updated_task
+            "data": task_dict
         }
     except HTTPException:
         # Re-raise HTTP exceptions as-is
         raise
     except Exception as e:
+        print(f"Error in update_task: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"Unable to update task: {str(e)}"
@@ -180,6 +243,9 @@ async def delete_task(
         # Re-raise HTTP exceptions as-is
         raise
     except Exception as e:
+        print(f"Error in delete_task: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unable to delete task: {str(e)}"
@@ -211,13 +277,16 @@ async def toggle_task_completion(
             "data": {
                 "id": updated_task.id,
                 "completed": updated_task.completed,
-                "updated_at": updated_task.updated_at
+                "updated_at": updated_task.updated_at.isoformat() if updated_task.updated_at else None
             }
         }
     except HTTPException:
         # Re-raise HTTP exceptions as-is
         raise
     except Exception as e:
+        print(f"Error in toggle_task_completion: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unable to toggle task completion: {str(e)}"

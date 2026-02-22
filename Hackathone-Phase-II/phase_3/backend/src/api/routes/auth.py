@@ -52,9 +52,14 @@ async def signup_user(
         # Hash the password before storing
         hashed_password = get_password_hash(signup_request.password)
 
+        # Generate a username based on the email if not already set
+        from datetime import datetime
+        generated_username = f"{signup_request.email.split('@')[0]}_{int(datetime.utcnow().timestamp())}"
+
         # Create new user with signup date validation
         db_user = User(
             email=signup_request.email,
+            username=generated_username,
             password=hashed_password,
             name=signup_request.name,
             date_of_birth=signup_request.date_of_birth,
@@ -98,33 +103,50 @@ async def signin_user(
     Authenticate user with enhanced error handling to differentiate between email and password errors.
     """
     try:
-        # Use the enhanced authentication service that provides detailed error messages
-        auth_result = auth_service.authenticate_user_detailed_errors(
-            session=session,
-            email=signin_request.email,
-            password=signin_request.password
+        # Find user by email using async session
+        statement = select(User).where(User.email == signin_request.email)
+        result = await session.execute(statement)
+        user = result.scalar_one_or_none()
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+
+        # Ensure username exists (for existing users that might not have it set)
+        if not user.username:
+            from datetime import datetime
+            user.username = f"{user.email.split('@')[0]}_{int(datetime.utcnow().timestamp())}"
+            await session.commit()
+
+        # Verify password using async-compatible code
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+        if not pwd_context.verify(signin_request.password, user.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+
+        # Create access token
+        from datetime import timedelta
+        from ...utils.jwt_utils import create_access_token
+        from ...config import settings
+        access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+        access_token = create_access_token(
+            data={"sub": str(user.id)}, expires_delta=access_token_expires
         )
 
         return {
             "success": True,
             "data": {
-                "user": UserRead.model_validate(auth_result["user"]),
-                "access_token": auth_result["token"],
+                "user": UserRead.model_validate(user),
+                "access_token": access_token,
                 "token_type": "bearer"
             }
         }
-    except AuthException as e:
-        # Map our custom exceptions to appropriate HTTP responses
-        status_code = status.HTTP_401_UNAUTHORIZED
-        if e.error_type == "EMAIL_NOT_FOUND":
-            status_code = status.HTTP_401_UNAUTHORIZED
-        elif e.error_type == "INVALID_PASSWORD":
-            status_code = status.HTTP_401_UNAUTHORIZED
-
-        raise HTTPException(
-            status_code=status_code,
-            detail=e.message
-        )
     except HTTPException:
         raise
     except Exception as e:
@@ -452,6 +474,9 @@ async def register_user(
         from datetime import datetime, date
         date_of_birth_obj = None
 
+        # Generate a username if not provided in the request (e.g., based on email)
+        generated_username = user_create.username or f"{user_create.email.split('@')[0]}_{int(datetime.utcnow().timestamp())}"
+
         # Debug: Print incoming date of birth for troubleshooting
         print(f"DEBUG: Incoming date_of_birth value: {user_create.date_of_birth}, type: {type(user_create.date_of_birth)}")
 
@@ -495,6 +520,7 @@ async def register_user(
 
         db_user = User(
             email=user_create.email,
+            username=generated_username,
             password=hashed_password,
             name=user_create.name,
             date_of_birth=date_of_birth_obj,
@@ -551,6 +577,12 @@ async def login_user(
                 detail="Invalid email or password"
             )
 
+        # Ensure username exists (for existing users that might not have it set)
+        if not user.username:
+            from datetime import datetime
+            user.username = f"{user.email.split('@')[0]}_{int(datetime.utcnow().timestamp())}"
+            await session.commit()
+
         # Verify the provided password against the stored hash
         if not verify_password(login_request.password, user.password):
             raise HTTPException(
@@ -579,3 +611,28 @@ async def login_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Login failed: {str(e)}"
         )
+
+
+@router.post("/logout", response_model=dict)
+async def logout_user():
+    """
+    Logout endpoint to invalidate session (for future implementation).
+    Currently just returns success, but can be extended to handle server-side session invalidation.
+    """
+    return {
+        "success": True,
+        "message": "Logged out successfully"
+    }
+
+
+@router.get("/me", response_model=dict)
+async def get_current_user_info(
+    current_user: UserRead = Depends(get_current_user)
+):
+    """
+    Get current authenticated user's information.
+    """
+    return {
+        "success": True,
+        "user": current_user
+    }

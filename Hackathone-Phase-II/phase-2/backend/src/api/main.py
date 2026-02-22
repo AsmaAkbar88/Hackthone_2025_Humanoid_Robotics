@@ -23,12 +23,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Handles startup and shutdown events.
     """
     # Startup
-    print("Starting up Todo Backend API...")
 
     # Create database tables
-    print("Creating database tables...")
     SQLModel.metadata.create_all(bind=sync_engine)
-    print("Database tables created successfully.")
 
     # Add exception handlers
     add_exception_handlers(app)
@@ -36,7 +33,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     yield
 
     # Shutdown
-    print("Shutting down Todo Backend API...")
 
 
 def create_app() -> FastAPI:

@@ -3,8 +3,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 
-from ..src.database.database import AsyncSessionLocal, async_engine
-from ..src.api.main import app
+from src.database.database import AsyncSessionLocal, async_engine
+from src.api.main import app
 
 
 @pytest.fixture(scope="session")
