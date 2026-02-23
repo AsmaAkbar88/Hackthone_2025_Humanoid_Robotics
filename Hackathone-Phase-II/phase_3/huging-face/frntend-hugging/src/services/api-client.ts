@@ -1,7 +1,7 @@
 // src/services/api-client.ts
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://asmaakbar-phase-iii.hf.space/api';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -13,7 +13,6 @@ class ApiClient {
       this.authToken = sessionStorage.getItem('authToken');
     }
 
-
     this.client = axios.create({
       baseURL: API_BASE_URL,
       headers: {
@@ -22,7 +21,6 @@ class ApiClient {
       // Enable sending cookies with requests (for session-based auth if implemented later)
       withCredentials: true
     });
-    
 
     // Request interceptor to add JWT token from a secure source
     this.client.interceptors.request.use(

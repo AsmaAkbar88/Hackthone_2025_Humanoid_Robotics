@@ -1,54 +1,12 @@
 import { useState, useCallback } from 'react';
 import { apiClient } from '../services/api-client';
 
-interface MessageAction {
-  action: string;
-  details?: string;
-  params?: any;
-}
-
-interface Message {
-  id: string | number;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp?: string;
-  actionsTaken?: MessageAction[];
-}
-
-interface Conversation {
-  id: string;
-  title: string;
-  created_at: string;
-}
-
-
-interface SendMessageResponse {
-  success: boolean;
-  conversationId?: string;
-  actions_taken?: MessageAction[];
-  error?: string;
-}
-
-interface ChatResponseData {
-  response: string;
-  conversation_id: string;
-  actions_taken?: MessageAction[];
-}
-
-interface ApiResponse<T> {
-  data: {
-    success: boolean;
-    data: T;
-    message?: string;
-  };
-}
-
 const useChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [conversations, setConversations] = useState([]);
+  const [userId, setUserId] = useState(null);
 
   // Get user ID from auth context or wherever it's stored
   const getUserId = () => {
@@ -57,11 +15,11 @@ const useChat = () => {
     return userId;
   };
 
-  const setUserIdLocal = (id: string | null) => {
+  const setUserIdLocal = (id) => {
     setUserId(id);
   };
 
-  const sendMessage = useCallback(async (message: string, conversationId: string | null = null): Promise<SendMessageResponse> => {
+  const sendMessage = useCallback(async (message, conversationId = null) => {
     // Extract user ID from the JWT token
     const token = apiClient.getAuthToken();
     if (!token) {
@@ -69,7 +27,7 @@ const useChat = () => {
     }
 
     // Parse the JWT token to extract user ID
-    const parseJwt = (token: string): any => {
+    const parseJwt = (token) => {
       try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -100,7 +58,7 @@ const useChat = () => {
     setError(null);
 
     try {
-      const response: ApiResponse<ChatResponseData> = await apiClient.post(`/chat/${userId}/chat`, {
+      const response = await apiClient.post(`/chat/${userId}/chat`, {
         message,
         conversation_id: conversationId
       });
@@ -109,15 +67,15 @@ const useChat = () => {
         const { response: aiResponse, conversation_id: newConversationId, actions_taken } = response.data.data;
 
         // Add both user and AI messages to the conversation
-        const newUserMessage: Message = {
-          id: Date.now().toString(),
+        const newUserMessage = {
+          id: Date.now(),
           role: 'user',
           content: message,
           timestamp: new Date().toISOString()
         };
 
-        const newAiMessage: Message = {
-          id: (Date.now() + 1).toString(),
+        const newAiMessage = {
+          id: Date.now() + 1,
           role: 'assistant',
           content: aiResponse,
           timestamp: new Date().toISOString(),
@@ -135,7 +93,7 @@ const useChat = () => {
       } else {
         throw new Error(response.data.message || 'Failed to process message');
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.detail || err.message || 'An error occurred while sending the message');
       return { success: false, error: err.response?.data?.detail || err.message || 'An error occurred while sending the message' };
     } finally {
@@ -143,7 +101,7 @@ const useChat = () => {
     }
   }, []);
 
-  const loadConversations = useCallback(async (): Promise<void> => {
+  const loadConversations = useCallback(async () => {
     // Extract user ID from the JWT token
     const token = apiClient.getAuthToken();
     if (!token) {
@@ -151,7 +109,7 @@ const useChat = () => {
     }
 
     // Parse the JWT token to extract user ID
-    const parseJwt = (token: string): any => {
+    const parseJwt = (token) => {
       try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -179,19 +137,19 @@ const useChat = () => {
     }
 
     try {
-      const response: ApiResponse<{ conversations: Conversation[] }> = await apiClient.get(`/chat/${userId}/conversations`);
+      const response = await apiClient.get(`/chat/${userId}/conversations`);
 
       if (response.data.success) {
         setConversations(response.data.data.conversations);
       } else {
         throw new Error(response.data.message || 'Failed to load conversations');
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.detail || err.message || 'An error occurred while loading conversations');
     }
   }, []);
 
-  const loadConversationHistory = useCallback(async (conversationId: string): Promise<void> => {
+  const loadConversationHistory = useCallback(async (conversationId) => {
     // Extract user ID from the JWT token
     const token = apiClient.getAuthToken();
     if (!token) {
@@ -199,7 +157,7 @@ const useChat = () => {
     }
 
     // Parse the JWT token to extract user ID
-    const parseJwt = (token: string): any => {
+    const parseJwt = (token) => {
       try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -227,12 +185,12 @@ const useChat = () => {
     }
 
     try {
-      const response: ApiResponse<{ conversation: { messages: { id: string | number; role: 'user' | 'assistant'; content: string; timestamp: string; }[] } }> = await apiClient.get(`/chat/${userId}/conversations/${conversationId}`);
+      const response = await apiClient.get(`/chat/${userId}/conversations/${conversationId}`);
 
       if (response.data.success) {
         const { messages } = response.data.data.conversation;
         // Convert server messages to our format
-        const formattedMessages: Message[] = messages.map(msg => ({
+        const formattedMessages = messages.map(msg => ({
           id: msg.id,
           role: msg.role,
           content: msg.content,
@@ -242,12 +200,12 @@ const useChat = () => {
       } else {
         throw new Error(response.data.message || 'Failed to load conversation history');
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.detail || err.message || 'An error occurred while loading conversation history');
     }
   }, []);
 
-  const clearMessages = useCallback((): void => {
+  const clearMessages = useCallback(() => {
     setMessages([]);
     setError(null);
   }, []);

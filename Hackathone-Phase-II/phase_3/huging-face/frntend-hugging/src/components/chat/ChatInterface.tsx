@@ -2,25 +2,29 @@ import React, { useState, useRef, useEffect } from 'react';
 import useChat from '../../hooks/useChat';
 import { useTasks } from '@/hooks/useTasks';
 
-interface MessageAction {
+interface ActionTaken {
   action: string;
   details?: string;
-  params?: any;
+  [key: string]: any; // Allow additional properties
 }
 
-interface Message {
-  id: string;
+interface ChatMessage {
+  id: string | number;
   role: 'user' | 'assistant';
   content: string;
-  actionsTaken?: MessageAction[];
   timestamp?: string;
+  actionsTaken?: ActionTaken[];
 }
+
 interface ChatInterfaceProps {
-  conversationId?: string | null;
+  conversationId?: string | number | null;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId = null }) => {
   const { messages, isLoading, error, sendMessage } = useChat();
+
+  // Type assertion for the messages to avoid the type error
+  const typedMessages = messages as ChatMessage[];
   const { 
     createTask: createGlobalTask, 
     fetchTasks, 
@@ -31,12 +35,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId = null }) 
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
     // Send the message
-    const response = await sendMessage(inputValue, conversationId);
+    const response = await sendMessage(inputValue, conversationId as any);
 
     // After sending the message, check if it triggered any task operations
     // and update the global task state immediately
@@ -71,13 +76,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId = null }) 
 
       {/* Messages container */}
       <div className="flex-grow overflow-y-auto max-h-[400px] mb-4 border border-gray-200 rounded p-3 bg-gray-50">
-        {messages.length === 0 ? (
+        {typedMessages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500">
             <p>Start a conversation to manage your tasks...</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.map((message) => (
+            {typedMessages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}

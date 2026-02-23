@@ -18,14 +18,12 @@ interface ForgotPasswordData {
   dateOfBirth: string; // Format: YYYY-MM-DD
 }
 
-
 interface ResetPasswordData {
   email: string;
   newPassword: string;
 }
 
-
-export interface User {
+interface User {
   id: string;
   email: string;
   name?: string;
@@ -41,10 +39,11 @@ class AuthService {
 
     try {
       // API call to the backend
-      const response: { data: { data: { user: User; access_token: string } } } = await apiClient.post('/auth/login', credentials);
+      const response = await apiClient.post('/auth/login', credentials);
 
       // Transform the response to match what the frontend expects
-      const { data } = response.data; // Extract from the nested data property
+      const responseData = response.data as any; // Type assertion for now
+      const { data } = responseData; // Extract from the nested data property
 
       // Ensure force_password_change flag is handled appropriately to prevent unwanted notifications
       const user = {
@@ -109,10 +108,10 @@ class AuthService {
       };
 
       // API call to the backend
-      const response: { data: { data: { user: any; access_token: string } } } = await apiClient.post('/auth/register', transformedData);
+      const response = await apiClient.post('/auth/register', transformedData);
 
       // Transform the response to match what the frontend expects
-      const responseData = response.data; // The backend returns data in a nested structure
+      const responseData: any = response.data; // The backend returns data in a nested structure
 
       // The backend returns: { success: true, data: { user: ..., access_token: ..., token_type: ... } }
       const backendUserData = responseData.data;
@@ -164,11 +163,12 @@ class AuthService {
 
     try {
       // API call to the backend - update to match new backend expectation
-      const response: { data: { success: boolean } } = await apiClient.post('/auth/forgot-password', {
+      const response = await apiClient.post('/auth/forgot-password', {
         email: forgotData.email,
         date_of_birth: forgotData.dateOfBirth  // Convert to snake_case to match backend
       });
-      return response.data.success;
+      const responseData: any = response.data;
+      return responseData.success;
     } catch (error: any) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -195,11 +195,12 @@ class AuthService {
 
     try {
       // API call to the backend - update to match new backend expectation
-      const response: { data: { success: boolean } } = await apiClient.post('/auth/reset-password', {
+      const response = await apiClient.post('/auth/reset-password', {
         email: resetData.email,
         new_password: resetData.newPassword
       });
-      return response.data.success;
+      const responseData: any = response.data;
+      return responseData.success;
     } catch (error: any) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -237,8 +238,9 @@ class AuthService {
   async getCurrentUser(): Promise<User | null> {
     try {
       // Call the backend to verify authentication status
-      const response: { data: { user: User } } = await apiClient.get('/auth/me');
-      return response.data.user as User;
+      const response = await apiClient.get('/auth/me');
+      const responseData: any = response.data;
+      return responseData.user as User;
     } catch (error: any) {
       // Check if this is a network error vs a 401 unauthorized
       // Only throw network errors, return null for 401s (which is normal when not logged in)

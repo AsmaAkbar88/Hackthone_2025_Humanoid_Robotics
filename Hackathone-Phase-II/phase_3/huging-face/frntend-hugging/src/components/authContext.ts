@@ -1,11 +1,13 @@
-import React from 'react';
+import { createContext } from 'react';
 
 export interface User {
   id: string;
   email: string;
   name?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  dateOfBirth?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  force_password_change?: boolean;
 }
 
 export interface AuthContextType {
@@ -19,4 +21,6 @@ export interface AuthContextType {
   checkAuthStatus: () => Promise<boolean>;
 }
 
-export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export { AuthContext };

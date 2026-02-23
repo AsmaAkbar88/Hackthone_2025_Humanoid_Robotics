@@ -8,13 +8,12 @@
 - Automatic logout on token expiration or invalidation
 - Redirect to login page after session termination
 
+
 ### Token Validation
 - Parse JWT to extract expiration time
 - Check if token is expired before making requests
 - Refresh token if nearing expiration (within 5 minutes)
 - Clear token and redirect on 401 responses
-
-
 
 ## API Security
 

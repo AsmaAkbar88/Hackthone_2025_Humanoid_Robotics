@@ -24,8 +24,9 @@ class TaskService {
   async getAll(): Promise<Task[]> {
     try {
       // API call to the backend to get all tasks for the current user
-      const response: { data: { data: { tasks: Task[] } } } = await apiClient.get('/tasks');
-      return response.data.data.tasks || [];
+      const response = await apiClient.get('/tasks');
+      const responseData: any = response.data;
+      return responseData.data.tasks || [];
     } catch (error: any) {
       // Handle 500 server errors specifically
       if (error.response?.status === 500) {
@@ -42,8 +43,9 @@ class TaskService {
   async getById(id: string | number): Promise<Task> {
     try {
       // API call to the backend to get a specific task
-      const response: { data: { data: Task } } = await apiClient.get(`/tasks/${id}`);
-      return response.data.data; // Backend returns task in data property
+      const response = await apiClient.get(`/tasks/${id}`);
+      const responseData: any = response.data;
+      return responseData.data; // Backend returns task in data property
     } catch (error: any) {
       console.error(`Error fetching task ${id}:`, error);
       throw error;
@@ -53,8 +55,9 @@ class TaskService {
   async create(taskData: CreateTaskData): Promise<Task> {
     try {
       // API call to the backend to create a new task
-      const response: { data: { data: Task } } = await apiClient.post('/tasks', taskData);
-      return response.data.data; // Backend returns task in data property
+      const response = await apiClient.post('/tasks', taskData);
+      const responseData: any = response.data;
+      return responseData.data; // Backend returns task in data property
     } catch (error: any) {
       console.error('Error creating task:', error);
       throw error;
@@ -64,8 +67,9 @@ class TaskService {
   async update(id: string | number, taskData: UpdateTaskData): Promise<Task> {
     try {
       // API call to the backend to update a task
-      const response: { data: { data: Task } } = await apiClient.put(`/tasks/${id}`, taskData);
-      return response.data.data; // Backend returns task in data property
+      const response = await apiClient.put(`/tasks/${id}`, taskData);
+      const responseData: any = response.data;
+      return responseData.data; // Backend returns task in data property
     } catch (error: any) {
       console.error(`Error updating task ${id}:`, error);
       throw error;
@@ -75,11 +79,12 @@ class TaskService {
   async toggleCompletion(id: string | number): Promise<Task> {
     try {
       // API call to the backend to toggle task completion
-      const response: { data: { data: any } } = await apiClient.patch(`/tasks/${id}/toggle`);
+      const response = await apiClient.patch(`/tasks/${id}/toggle`);
 
       // The toggle endpoint returns limited data, so we need to fetch the full task
       // Or we can update based on the response we get
-      const toggleResponse = response.data.data;
+      const responseData: any = response.data;
+      const toggleResponse = responseData.data;
 
       // For now, let's fetch the full task after toggling to get complete data
       return await this.getById(id);
@@ -92,7 +97,7 @@ class TaskService {
   async delete(id: string | number): Promise<void> {
     try {
       // API call to the backend to delete a task
-      const response: { data: { success: boolean } } = await apiClient.delete(`/tasks/${id}`);
+      await apiClient.delete(`/tasks/${id}`);
     } catch (error: any) {
       console.error(`Error deleting task ${id}:`, error);
       throw error;

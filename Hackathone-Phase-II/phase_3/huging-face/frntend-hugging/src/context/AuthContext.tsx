@@ -3,7 +3,16 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { authService } from '@/services/auth-service';
-import type { User } from '@/services/auth-service';
+
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+  dateOfBirth?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  force_password_change?: boolean;
+}
 
 interface AuthState {
   user: User | null;
@@ -11,6 +20,7 @@ interface AuthState {
   error: string | null;
   isAuthenticated: boolean;
 }
+
 type AuthAction =
   | { type: 'LOGIN_START' }
   | { type: 'LOGIN_SUCCESS'; payload: User }
@@ -157,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       dispatch({ type: 'LOGIN_SUCCESS', payload: user });
       return user;
-    } catch (error: any) {
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       dispatch({ type: 'LOGIN_FAILURE', payload: errorMessage });
       throw error;
@@ -171,7 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       dispatch({ type: 'REGISTER_SUCCESS', payload: user });
       return user;
-    } catch (error: any) {
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Registration failed';
       dispatch({ type: 'REGISTER_FAILURE', payload: errorMessage });
       throw error;
@@ -191,7 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await authService.resetPassword(data);
       return;
-    } catch (error: any) {
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Password reset failed';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;

@@ -1,20 +1,21 @@
 import React from 'react';
 
-interface MessageAction {
+interface ActionTaken {
   action: string;
-  params?: any;
+  details?: string;
+  [key: string]: any; // Allow additional properties
 }
 
-interface Message {
-  id?: string;
-  timestamp?: string;
+interface ChatMessage {
+  id: string | number;
   role: 'user' | 'assistant';
   content: string;
-  actionsTaken?: MessageAction[];
+  timestamp?: string;
+  actionsTaken?: ActionTaken[];
 }
 
 interface ChatHistoryProps {
-  messages: Message[];
+  messages: ChatMessage[];
   isLoading?: boolean;
 }
 

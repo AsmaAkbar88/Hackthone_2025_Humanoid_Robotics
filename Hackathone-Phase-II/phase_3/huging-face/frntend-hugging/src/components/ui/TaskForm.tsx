@@ -66,8 +66,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
             id="title"
             {...register('title', { required: 'Title is required', minLength: { value: 1, message: 'Title cannot be empty' } })}
             className={`block w-full px-3 py-2 border ${
-              errors.title ? 'border-red-500' : 'border-border-input'
-            } rounded-xl focus:outline-none focus:border-turquoise focus:ring-1 focus:ring-turquoise sm:text-sm theme-input`}
+              errors.title ? 'border-red-300' : 'border-border-color'
+            } rounded-md shadow-sm focus:outline-none focus:border-black focus:border-accent-primary sm:text-sm theme-input bg-bg-primary text-text-primary`}
             placeholder="Task title"
           />
           {errors.title && (
@@ -95,7 +95,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               id="description"
               {...register('description')}
               rows={3}
-              className="focus:ring-0 focus:border-turquoise focus:outline-none mt-1 block w-full sm:text-sm border border-border-input rounded-xl p-2 theme-input bg-bg-input text-text-primary"
+              className="shadow-sm focus:ring-0 focus:border-black focus:outline-none mt-1 block w-full sm:text-sm border border-border-color rounded-md p-2 theme-input bg-bg-primary text-text-primary"
               placeholder="Task description (optional)"
             />
           </div>

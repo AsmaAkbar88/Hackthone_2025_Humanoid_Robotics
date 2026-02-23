@@ -5,7 +5,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   error?: string;
   helperText?: string;
   variant?: 'default' | 'outlined' | 'filled';
-  size?: 'sm' | 'md' | 'lg';
+  inputSize?: 'sm' | 'md' | 'lg';
 }
 
 const Input: React.FC<InputProps> = ({
@@ -13,7 +13,7 @@ const Input: React.FC<InputProps> = ({
   error,
   helperText,
   variant = 'default',
-  size = 'md',
+  inputSize = 'md',
   className = '',
   ...props
 }) => {
@@ -33,7 +33,7 @@ const Input: React.FC<InputProps> = ({
 
   const inputClasses = `
     block w-full
-    ${sizeClasses[size]}
+    ${sizeClasses[inputSize]}
     ${variantClasses[variant]}
     bg-bg-primary text-text-primary
     placeholder-text-secondary
