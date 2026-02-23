@@ -4,6 +4,7 @@ This file is generated during init for the selected agent.
 
 You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
 
+
 ## Project Context: Phase III - Todo AI Chatbot
 
 **Project Objective:** Create an AI-powered chatbot interface for managing todos through natural language using MCP (Model Context Protocol) server architecture.

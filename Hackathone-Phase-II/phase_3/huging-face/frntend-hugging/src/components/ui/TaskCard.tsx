@@ -40,13 +40,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onDelete, onUpdate 
 
   return (
     <div
-      className="bg-bg-secondary shadow-lg overflow-hidden sm:rounded-xl p-6 mb-4 border border-border-color theme-card"
+      className={`task-item ${task.completed ? 'completed' : ''} p-5 mb-4 glass-container card-hover`}
       role="listitem"
       aria-labelledby={`task-title-${task.id}`}
     >
       {isEditing ? (
         <div className="edit-mode">
-          <h3 className="text-lg font-medium text-text-primary mb-3 text-h3">Edit Task</h3>
+          <h3 className="text-lg font-medium text-text-primary mb-3 text-h3 theme-typography-h3">Edit Task</h3>
           <TaskForm
             initialData={task}
             onSubmit={handleSave}
@@ -62,28 +62,28 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onDelete, onUpdate 
               id={`task-checkbox-${task.id}`}
               checked={task.completed}
               onChange={handleToggle}
-              className="h-5 w-5 text-accent-primary focus:ring-accent-primary border-border-color rounded mt-1"
+              className="theme-checkbox h-5 w-5 mt-1 focus:ring-0"
               aria-describedby={`task-desc-${task.id}`}
             />
             <div className="ml-4 flex-1 min-w-0">
               <h3
                 id={`task-title-${task.id}`}
-                className={`text-lg font-medium ${task.completed ? 'line-through text-text-secondary' : 'text-text-primary'}`}
+                className={`task-title font-medium ${task.completed ? 'line-through text-text-secondary' : 'text-text-primary'}`}
               >
                 {task.title}
               </h3>
               {task.description && (
                 <p
                   id={`task-desc-${task.id}`}
-                  className={`mt-1 text-sm ${task.completed ? 'text-text-secondary' : 'text-text-secondary'}`}
+                  className={`task-description mt-1 text-sm ${task.completed ? 'text-text-secondary' : 'text-text-secondary'}`}
                 >
                   {task.description}
                 </p>
               )}
               <div className="mt-2 flex items-center text-xs text-text-secondary">
-                <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
+                <span className="task-date">Created: {new Date(task.createdAt).toLocaleDateString()}</span>
                 {task.updatedAt !== task.createdAt && (
-                  <span className="ml-2">Updated: {new Date(task.updatedAt).toLocaleDateString()}</span>
+                  <span className="task-date ml-2">Updated: {new Date(task.updatedAt).toLocaleDateString()}</span>
                 )}
               </div>
             </div>
@@ -92,6 +92,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onDelete, onUpdate 
                 onClick={handleEdit}
                 aria-label={`Edit task: ${task.title}`}
                 size="sm"
+                className="opacity-80 hover:opacity-100 transition-opacity"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -101,6 +102,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle, onDelete, onUpdate 
                 onClick={handleDelete}
                 aria-label={`Delete task: ${task.title}`}
                 size="sm"
+                className="opacity-80 hover:opacity-100 transition-opacity"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path

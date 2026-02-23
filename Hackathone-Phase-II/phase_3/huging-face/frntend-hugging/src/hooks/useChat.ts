@@ -21,6 +21,7 @@ interface Conversation {
   created_at: string;
 }
 
+
 interface SendMessageResponse {
   success: boolean;
   conversationId?: string;

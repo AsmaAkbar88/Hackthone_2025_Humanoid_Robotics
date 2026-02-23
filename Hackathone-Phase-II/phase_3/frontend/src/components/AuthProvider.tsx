@@ -11,6 +11,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
+  
   useEffect(() => {
     // Check if user is already logged in when app loads
     const initAuth = async () => {

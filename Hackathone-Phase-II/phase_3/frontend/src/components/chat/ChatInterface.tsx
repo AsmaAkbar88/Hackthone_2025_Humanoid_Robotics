@@ -14,6 +14,7 @@ const ChatInterface = ({ conversationId = null }) => {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;

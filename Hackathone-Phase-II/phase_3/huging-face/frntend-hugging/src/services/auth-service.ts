@@ -18,10 +18,12 @@ interface ForgotPasswordData {
   dateOfBirth: string; // Format: YYYY-MM-DD
 }
 
+
 interface ResetPasswordData {
   email: string;
   newPassword: string;
 }
+
 
 export interface User {
   id: string;

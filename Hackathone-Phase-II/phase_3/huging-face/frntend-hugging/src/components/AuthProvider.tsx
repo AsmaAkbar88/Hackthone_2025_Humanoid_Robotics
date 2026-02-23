@@ -34,6 +34,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     initAuth();
   }, []);
 
+  
   const checkAuthStatus = async (): Promise<boolean> => {
     try {
       const currentUser = await authService.getCurrentUser();

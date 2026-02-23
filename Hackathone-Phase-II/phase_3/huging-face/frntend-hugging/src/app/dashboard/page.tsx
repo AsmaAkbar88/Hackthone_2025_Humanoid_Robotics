@@ -88,20 +88,20 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="bg-white shadow-md overflow-hidden sm:rounded-lg p-6 theme-card">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Your Tasks</h2>
+          <div className="glass-container max-w-4xl mx-auto p-8">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-bold text-text-primary theme-typography-h2">Your Tasks</h2>
               <div className="flex space-x-4">
                 <Link href="/chat">
                   <button
-                    className="px-4 py-2 text-sm font-medium text-black shadow-md border-2 rounded-md hover:bg-pink-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-500)]"
+                    className="theme-btn-secondary text-black"
                   >
                     AI Assistant
                   </button>
                 </Link>
                 <button
                   onClick={() => setShowTaskForm(!showTaskForm)}
-                  className="px-4 py-2 text-sm font-medium text-black shadow-md border-2 rounded-md hover:bg-pink-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-500)]"
+                  className="theme-btn-primary text-black"
                 >
                   {showTaskForm ? 'Cancel' : '+ New Task'}
                 </button>
@@ -109,8 +109,8 @@ export default function DashboardPage() {
             </div>
 
             {showTaskForm && (
-              <div className="mb-6 p-4 bg-[var(--secondary-50)]">
-                <h3 className="text-lg font-medium text-[var(--text-primary)] mb-3">Create New Task</h3>
+              <div className="mb-8 p-6 glass-container">
+                <h3 className="text-xl font-semibold text-text-primary theme-typography-h3 mb-4">Create New Task</h3>
                 <TaskForm
                   onSubmit={handleCreateTask}
                   onCancel={() => setShowTaskForm(false)}
@@ -120,58 +120,66 @@ export default function DashboardPage() {
             )}
 
             {tasksState.loading ? (
-              <p className="text-[var(--text-secondary)]">Loading tasks...</p>
+              <div className="flex justify-center items-center py-12">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-turquoise border-opacity-50 rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-r-turquoise border-t-turquoise rounded-full animate-spin-reverse"></div>
+                </div>
+              </div>
             ) : tasksState.error ? (
-              <div className="bg-red-50 text-red-500  p-4 rounded">
-                Error loading tasks: {tasksState.error}
-                <button
-                  onClick={() => fetchTasks()}
-                  className="ml-4 text-[var(--primary-600)] underline"
-                >
-                  Retry
-                </button>
+              <div className="p-6 rounded-xl glass-container border border-red-200">
+                <div className="text-red-500 theme-typography-body">
+                  <p className="font-medium">Error loading tasks:</p>
+                  <p className="mt-1">{tasksState.error}</p>
+                </div>
+                <div className="mt-4">
+                  <button
+                    onClick={() => fetchTasks()}
+                    className="theme-btn-secondary"
+                  >
+                    Retry
+                  </button>
+                </div>
               </div>
             ) : (
+            ) : (
               <div>
-                <div className="flex space-x-4 mb-4">
+                <div className="flex space-x-4 mb-6">
                   <button
                     onClick={() => setFilter('all')}
-                    className={`px-3 py-1 text-sm ml-4 px-4 py-2 text-sm font-medium text-black shadow-md border-2 rounded-md hover:bg-pink-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-500)] rounded ${
-                      tasksState.currentFilter === 'all'
-                        ? 'bg-pink-400 shadow-md border-2 text-black'
-                        : 'bg-[var(--secondary-200)] text-[var(--text-primary)]'
+                    className={`filter-button ${
+                      tasksState.currentFilter === 'all' ? 'active' : ''
                     }`}
                   >
                     All ({tasksState.tasks.length})
+                    <span className="ml-2 status-badge status-pending">{tasksState.tasks.length}</span>
                   </button>
                   <button
                     onClick={() => setFilter('active')}
-                    className={`px-3 py-1 text-sm ml-4 px-4 py-2 text-sm font-medium text-black shadow-md border-2 rounded-md hover:bg-pink-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-500)] rounded ${
-                      tasksState.currentFilter === 'active'
-                        ? 'bg-[var(--primary-500)] text-black bg-pink-400 shadow-md'
-                        : 'bg-[var(--secondary-200)] text-[var(--text-primary)]'
+                    className={`filter-button ${
+                      tasksState.currentFilter === 'active' ? 'active' : ''
                     }`}
                   >
                     Active ({tasksState.tasks.filter(t => !t.completed).length})
+                    <span className="ml-2 status-badge status-pending">{tasksState.tasks.filter(t => !t.completed).length}</span>
                   </button>
                   <button
                     onClick={() => setFilter('completed')}
-                    className={`px-3 py-1 text-sm ml-4 px-4 py-2 text-sm font-medium text-black shadow-md border-2 rounded-md hover:bg-pink-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-500)] rounded ${
-                      tasksState.currentFilter === 'completed'
-                        ? 'bg-[var(--primary-500)] text-black bg-pink-400 shadow-md'
-                        : 'bg-[var(--secondary-200)] text-[var(--text-primary)]'
+                    className={`filter-button ${
+                      tasksState.currentFilter === 'completed' ? 'active' : ''
                     }`}
                   >
                     Completed ({tasksState.tasks.filter(t => t.completed).length})
+                    <span className="ml-2 status-badge status-completed">{tasksState.tasks.filter(t => t.completed).length}</span>
                   </button>
                 </div>
 
-                <p className="text-[var(--text-secondary)] mb-4">
+                <p className="text-text-secondary mb-6 theme-typography-body">
                   Showing {filteredTasks.length} of {tasksState.tasks.length} tasks
                 </p>
 
                 {filteredTasks.length > 0 ? (
-                  <div>
+                  <div className="space-y-4">
                     {filteredTasks.map((task) => (
                       <TaskCard
                         key={task.id}
@@ -191,7 +199,10 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-[var(--text-secondary)]">No tasks found. {tasksState.tasks.length === 0 ? 'Create your first task!' : 'Try changing the filter.'}</p>
+                  <div className="text-center py-12 glass-container">
+                    <p className="text-text-secondary theme-typography-body mb-4">No tasks found.</p>
+                    <p className="text-text-muted theme-typography-body">{tasksState.tasks.length === 0 ? 'Create your first task!' : 'Try changing the filter.'}</p>
+                  </div>
                 )}
               </div>
             )}

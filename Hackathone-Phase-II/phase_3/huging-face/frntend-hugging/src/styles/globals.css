@@ -3,25 +3,18 @@
 @tailwind utilities;
 
 :root {
-  font-family: system-ui, sans-serif; /* Use system fonts instead of remote Inter font */
-  line-height: 1.5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
   font-weight: 400;
+  font-feature-settings: 'liga' 1, 'calt' 1; /* Enable ligatures and contextual alternates */
 
-  /* Base colors managed by theme */
+  /* Premium 2026 color palette managed by theme.css */
   --text-color: var(--text-primary);
   --bg-color: var(--bg-primary);
 
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
+  --foreground-rgb: 26, 26, 26; /* near black */
+  --background-start-rgb: 248, 248, 248; /* soft white */
   --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
 }
 
 body {
@@ -29,16 +22,238 @@ body {
   padding: 0;
   min-height: 100vh;
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      transparent
-    )
-    rgb(var(--background-start-rgb));
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background: var(--gradient-bg);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  /* Apply premium glass effect to the body */
+  background-attachment: fixed;
+}
+
+/* Enhanced typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+/* Premium micro-interactions for all interactive elements */
+button, a, input, textarea, select, label {
+  transition: all var(--transition-normal) var(--transition-bounce);
+  cursor: pointer;
 }
 
 /* Smooth transitions for interactive elements */
 button, a {
-  transition: all 0.2s ease-in-out;
+  transition: all var(--transition-normal) var(--transition-bounce);
+}
+
+/* Premium focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--turquoise);
+  outline-offset: 2px;
+}
+
+/* Enhanced checkbox styling */
+input[type="checkbox"] {
+  appearance: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid var(--border-input);
+  border-radius: 6px;
+  outline: none;
+  transition: all var(--transition-fast);
+  position: relative;
+  background: var(--bg-input);
+  cursor: pointer;
+  vertical-align: middle;
+  margin-top: -0.125rem;
+}
+
+input[type="checkbox"]:checked {
+  background: var(--turquoise);
+  border-color: var(--turquoise);
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"]:hover {
+  border-color: var(--turquoise);
+  box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.2);
+}
+
+/* Enhanced radio button styling */
+input[type="radio"] {
+  appearance: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid var(--border-input);
+  border-radius: 50%;
+  outline: none;
+  transition: all var(--transition-fast);
+  background: var(--bg-input);
+  cursor: pointer;
+}
+
+input[type="radio"]:checked {
+  border-color: var(--turquoise);
+  background: white;
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--turquoise);
+}
+
+input[type="radio"]:hover {
+  border-color: var(--turquoise);
+  box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.2);
+}
+
+/* Enhanced input styling */
+input, textarea, select {
+  appearance: none;
+  border-radius: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  transition: all var(--transition-normal);
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--turquoise);
+  box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.2);
+  transform: scale(1.02);
+}
+
+/* Premium scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--peachpuff);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--turquoise);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #37CFC5;
+}
+
+/* Smooth text selection */
+::selection {
+  background: var(--turquoise);
+  color: var(--near-black);
+}
+
+/* Glassmorphism containers */
+.glass-container {
+  background: var(--bg-card-glass);
+  border: 1px solid var(--border-card);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  transition: all var(--transition-normal);
+}
+
+/* Soft neumorphism effect */
+.neumorphic {
+  background: var(--bg-secondary);
+  box-shadow: var(--neumorphism-light);
+  transition: box-shadow var(--transition-normal);
+}
+
+.neumorphic:hover {
+  box-shadow: inset 5px 5px 10px rgba(200, 200, 200, 0.4),
+              inset -5px -5px 10px rgba(255, 255, 255, 0.9);
+}
+
+/* Premium hover animations for all cards */
+.card-hover {
+  transition: transform var(--transition-normal) var(--transition-bounce);
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+}
+
+/* Subtle parallax effect on larger screens */
+@media (min-width: 768px) {
+  .parallax-element {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .parallax-element:hover {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+/* Premium loading animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--bg-secondary), var(--peachpuff), var(--soft-white));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Custom animations for premium feel */
+@keyframes spin-reverse {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 1.2s linear infinite;
+}
+
+/* Enhanced focus rings for better accessibility */
+.focus-ring {
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.focus-ring:focus,
+.focus-ring:focus-visible {
+  outline: 2px solid var(--turquoise);
+  outline-offset: 2px;
 }

@@ -13,6 +13,7 @@ class ApiClient {
       this.authToken = sessionStorage.getItem('authToken');
     }
 
+
     this.client = axios.create({
       baseURL: API_BASE_URL,
       headers: {
@@ -21,6 +22,7 @@ class ApiClient {
       // Enable sending cookies with requests (for session-based auth if implemented later)
       withCredentials: true
     });
+    
 
     // Request interceptor to add JWT token from a secure source
     this.client.interceptors.request.use(

@@ -16,7 +16,6 @@ export const useTheme = (): ThemeContextType => {
   }
   return context;
 };
-
 interface ThemeProviderProps {
   children: ReactNode;
 }

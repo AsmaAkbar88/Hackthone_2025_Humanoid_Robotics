@@ -11,7 +11,6 @@ interface AuthState {
   error: string | null;
   isAuthenticated: boolean;
 }
-
 type AuthAction =
   | { type: 'LOGIN_START' }
   | { type: 'LOGIN_SUCCESS'; payload: User }

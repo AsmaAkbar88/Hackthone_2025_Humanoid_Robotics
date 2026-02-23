@@ -15,7 +15,6 @@ interface Message {
   actionsTaken?: MessageAction[];
   timestamp?: string;
 }
-
 interface ChatInterfaceProps {
   conversationId?: string | null;
 }
