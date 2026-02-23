@@ -5,6 +5,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+
 from .routes.tasks import router as tasks_router
 from .routes.auth import router as auth_router
 from .routes.chat import router as chat_router

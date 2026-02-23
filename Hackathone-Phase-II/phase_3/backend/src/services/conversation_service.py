@@ -10,7 +10,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from ..models.conversation import Conversation, ConversationCreate
 from ..models.message import Message, MessageCreate
 
-
 class ConversationService:
     """
     Service class to handle conversation operations.

@@ -12,7 +12,6 @@ class ConversationBase(SQLModel):
     title: str = Field(default="New Conversation", max_length=255)
     user_id: str = Field(index=True)  # String identifier for user (matches database schema)
 
-
 class Conversation(ConversationBase, table=True):
     """Conversation model for the database table."""
     id: Optional[int] = Field(default=None, primary_key=True)

@@ -8,7 +8,6 @@ class UserBase(SQLModel):
     email: str = Field(unique=True, nullable=False, max_length=255)
     username: Optional[str] = Field(default=None, nullable=True, max_length=255)  # String identifier for MCP tools
 
-
 class User(UserBase, table=True):
     """User model for the database table."""
     id: Optional[int] = Field(default=None, primary_key=True)

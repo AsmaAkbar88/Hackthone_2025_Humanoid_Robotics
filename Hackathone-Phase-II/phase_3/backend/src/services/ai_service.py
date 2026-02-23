@@ -199,6 +199,7 @@ class AIService:
         session: AsyncSession
     ) -> Dict[str, Any]:
         """
+        
         MCP tool for completing tasks.
 
         Args:

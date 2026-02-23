@@ -17,7 +17,6 @@ from ..models.task import Task
 from ..models.conversation import Conversation
 from ..models.message import Message
 
-
 def create_db_and_tables():
     """Create database tables based on SQLModel models."""
     print("Creating database tables...")

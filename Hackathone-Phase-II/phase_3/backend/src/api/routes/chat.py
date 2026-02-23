@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from pydantic import BaseModel
 
+
 from ...models.user import UserRead
 from ...models.conversation import Conversation, ConversationCreate
 from ...models.message import Message, MessageCreate, MessageRole

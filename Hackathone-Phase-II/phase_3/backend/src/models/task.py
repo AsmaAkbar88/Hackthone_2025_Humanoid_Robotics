@@ -11,7 +11,6 @@ class TaskBase(SQLModel):
     description: Optional[str] = Field(default=None, max_length=1000)
     completed: bool = Field(default=False)
 
-
 class TaskCreate(TaskBase):
     """Model for creating a new task."""
     pass  # user_id will be set by the service layer

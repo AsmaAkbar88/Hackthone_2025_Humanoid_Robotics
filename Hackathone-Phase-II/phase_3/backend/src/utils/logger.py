@@ -29,6 +29,7 @@ logger.addHandler(console_handler)
 class SecurityLogger:
     """Custom logger for security-related events."""
 
+
     @staticmethod
     def log_task_access_attempt(user_id: int, task_id: int, action: str, success: bool, ip_address: Optional[str] = None):
         """Log task access attempts for security monitoring."""

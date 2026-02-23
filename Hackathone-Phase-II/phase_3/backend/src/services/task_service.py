@@ -9,7 +9,6 @@ from sqlalchemy.exc import IntegrityError
 from ..models.task import Task, TaskCreate, TaskUpdate, TaskRead
 from ..utils.error_handlers import NotFoundError, ValidationError, UnauthorizedError
 
-
 class TaskService:
     """Service class for handling task-related business logic."""
 

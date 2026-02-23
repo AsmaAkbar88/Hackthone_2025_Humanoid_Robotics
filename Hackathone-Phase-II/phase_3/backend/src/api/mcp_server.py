@@ -21,7 +21,6 @@ server = Server("todo-mcp-server")
 
 
 
-
 @server.list_tools()
 async def list_tools() -> List[Tool]:
     """List all available tools in the MCP server."""

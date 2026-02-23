@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .conversation import Conversation  # Avoid circular import for type checking
 
-
 class MessageRole(str, Enum):
     """Enumeration for message roles."""
     USER = "user"

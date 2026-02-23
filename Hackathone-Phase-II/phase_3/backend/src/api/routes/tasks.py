@@ -9,6 +9,7 @@ from ...models.user import UserRead
 from ...database.database import get_async_session
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 

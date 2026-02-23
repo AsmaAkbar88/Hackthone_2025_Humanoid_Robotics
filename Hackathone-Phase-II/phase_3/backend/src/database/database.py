@@ -11,7 +11,6 @@ def clean_database_url(url: str, is_async: bool = True) -> str:
     # Skip processing for SQLite
     if url.startswith('sqlite'):
         return url
-
     try:
         # Parse the URL properly
         parsed = urlparse(url)

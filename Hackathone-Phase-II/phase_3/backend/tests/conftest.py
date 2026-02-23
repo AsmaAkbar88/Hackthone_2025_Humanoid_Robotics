@@ -6,7 +6,6 @@ from sqlmodel import SQLModel
 from src.database.database import AsyncSessionLocal, async_engine
 from src.api.main import app
 
-
 @pytest.fixture(scope="session")
 def event_loop():
     """Create an event loop for async tests."""
