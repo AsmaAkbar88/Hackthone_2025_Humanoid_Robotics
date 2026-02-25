@@ -6,6 +6,12 @@ import json
 # Configure the root logger
 logging.basicConfig(level=logging.INFO)
 
+# Reduce SQLAlchemy logging to reduce noise
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.dialects').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.orm').setLevel(logging.WARNING)
+
 # Create a custom logger for the application
 logger = logging.getLogger(__name__)
 
@@ -22,6 +28,7 @@ logger.addHandler(console_handler)
 
 class SecurityLogger:
     """Custom logger for security-related events."""
+
 
     @staticmethod
     def log_task_access_attempt(user_id: int, task_id: int, action: str, success: bool, ip_address: Optional[str] = None):

@@ -1,33 +1,31 @@
-FROM python:3.11-slim
+# Use Python 3.12 slim image as base
+FROM python:3.12-slim
 
-# Set environment variables to avoid issues with apt repositories
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONUNBUFFERED=1
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
 
-# Update package lists with fix for expired repositories
-RUN apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Check-Date=false update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
+# Set work directory
 WORKDIR /app
 
-# Copy requirements file
+# Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 
-# Upgrade pip and install Python dependencies
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
+# Copy source code
 COPY src/ ./src/
 
-# Create a non-root user for security
-RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
-USER app
+# Create non-root user for security
+RUN adduser --disabled-password --gecos '' appuser
+RUN chown -R appuser:appuser /app
+USER appuser
 
-# Expose port 8000
+# Expose port
 EXPOSE 8000
 
-# Run the application with uvicorn
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application with proper configuration
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--no-access-log"]

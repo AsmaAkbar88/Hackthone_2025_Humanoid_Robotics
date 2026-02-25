@@ -17,7 +17,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { login, state } = useAuth(); // Get the state to access user info
+  const { login } = useAuth();
   const { showError, showSuccess } = useNotifications();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,11 +26,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     setError(null);
 
     try {
-      await login(email, password);
-      
-      // Get the user from the context after successful login
-      const user = state.user;
-      showSuccess(`Welcome back, ${user?.name || email.split('@')[0]}!`);
+      const user = await login(email, password);
+      showSuccess(`Welcome back, ${user.name || user.email.split('@')[0]}!`);
 
       if (onSuccess) {
         onSuccess();

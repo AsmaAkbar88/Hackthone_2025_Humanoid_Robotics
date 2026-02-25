@@ -1,21 +1,55 @@
 import React, { useState, useRef, useEffect } from 'react';
 import useChat from '../../hooks/useChat';
+import { useTasks } from '@/hooks/useTasks';
 
 interface ChatInterfaceProps {
-  conversationId?: string | null;
+  conversationId?: string | number | null;
 }
 
+// Add types for the useChat return values
+type UseChatReturn = {
+  messages: any[];
+  isLoading: boolean;
+  error: string | null;
+  sendMessage: (message: string, conversationId?: string | number | null) => Promise<any>;
+  // Add other values as needed
+};
+
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId = null }) => {
-  const { messages, isLoading, error, sendMessage } = useChat();
+  const { messages, isLoading, error, sendMessage } = useChat() as any; // Type assertion for now
+  const {
+    createTask: createGlobalTask,
+    fetchTasks,
+    state: tasksState,
+    updateTask,
+    deleteTask
+  } = useTasks(); // Access the global task context
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
     // Send the message
-    await sendMessage(inputValue, conversationId);
+    const response = await sendMessage(inputValue, conversationId);
+
+    // After sending the message, check if it triggered any task operations
+    // and update the global task state immediately
+    if (response && response.success && response.actions_taken && Array.isArray(response.actions_taken)) {
+      // Check if any of the actions were task-related
+      const taskActions = response.actions_taken.filter((action: any) =>
+        action && action.action && ['task_created', 'task_completed', 'task_updated', 'task_deleted'].includes(action.action)
+      );
+
+      if (taskActions.length > 0) {
+        // Refresh all tasks to sync with backend
+        // This ensures that the dashboard gets updated with the new task
+        await fetchTasks();
+      }
+    }
+
     setInputValue(''); // Clear the input after sending
   };
 
@@ -40,7 +74,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId = null }) 
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.map((message) => (
+            {messages.map((message: any) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -58,7 +92,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId = null }) 
                   <div className="text-sm">{message.content}</div>
                   {message.actionsTaken && message.actionsTaken.length > 0 && (
                     <div className="mt-2 text-xs opacity-80">
-                      Actions taken: {message.actionsTaken.map(action => action.details).join(', ')}
+                      Actions taken: {message.actionsTaken.map((action: any) => action.details).join(', ')}
                     </div>
                   )}
                 </div>

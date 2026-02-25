@@ -1,22 +1,22 @@
-# Install dependencies only when needed
-FROM node:20-alpine AS deps
+# Use Node 20 as base image
+FROM node:20-alpine
+
+# Set environment variables (these will be available at build time)
+ENV NODE_ENV=production
+ENV NEXT_PUBLIC_API_BASE_URL=http://todo-chatbot-backend:8000/api
+ENV NEXT_PUBLIC_BACKEND_URL=http://todo-chatbot-backend:8000
+
+# Set work directory
 WORKDIR /app
 
-# Copy package.json and lockfile
+# Install build dependencies
+RUN apk add --no-cache libc6-compat python3 make g++
+
+# Copy package files first to leverage Docker cache
 COPY package*.json ./
 
-# Install dependencies (both production and dev for building)
-RUN npm ci
-
-# Rebuild the source code only when needed
-FROM node:20-alpine AS builder
-WORKDIR /app
-
-# Copy package.json and lockfile
-COPY package*.json ./
-
-# Copy installed dependencies from previous stage
-COPY --from=deps /app/node_modules ./node_modules
+# Install dependencies
+RUN npm ci --only=production
 
 # Copy source code
 COPY . .
@@ -24,22 +24,16 @@ COPY . .
 # Build the Next.js application
 RUN npm run build
 
-# Production image, copy all the files and run next
-FROM node:20-alpine AS runner
-WORKDIR /app
-
-# Set production environment
-ENV NODE_ENV=production
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-# Copy the built application and dependencies from builder stage
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
-# Expose port 3000
+# Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "server.js"]
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Change ownership of the app directory
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# Run the application
+CMD ["npm", "start"]

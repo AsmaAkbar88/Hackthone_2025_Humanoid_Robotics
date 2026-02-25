@@ -3,10 +3,11 @@
 ## Authentication & Session Management
 
 ### JWT Token Handling
-- Tokens are stored in browser's localStorage
+- Tokens are stored in memory only (not persisted)
 - Token validation occurs before API requests
 - Automatic logout on token expiration or invalidation
 - Redirect to login page after session termination
+
 
 ### Token Validation
 - Parse JWT to extract expiration time

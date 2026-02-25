@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .conversation import Conversation  # Avoid circular import for type checking
 
-
 class MessageRole(str, Enum):
     """Enumeration for message roles."""
     USER = "user"
@@ -20,12 +19,14 @@ class MessageBase(SQLModel):
     role: MessageRole = Field(sa_column_kwargs={"default": "user"})
     content: str = Field(max_length=5000)
     conversation_id: int = Field(foreign_key="conversation.id")
+    user_id: str = Field(index=True)  # String identifier for user (matches database schema)
 
 
 class Message(MessageBase, table=True):
     """Message model for the database table."""
     id: Optional[int] = Field(default=None, primary_key=True)
     timestamp: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
     # Relationship
     conversation: Optional["Conversation"] = Relationship(back_populates="messages")
@@ -39,4 +40,6 @@ class MessageCreate(MessageBase):
 class MessageRead(MessageBase):
     """Model for reading message data."""
     id: int
+    user_id: str  # String identifier for user (matches database schema)
     timestamp: datetime
+    created_at: datetime

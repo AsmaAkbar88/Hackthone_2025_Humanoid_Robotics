@@ -11,13 +11,6 @@ export interface Task {
   updatedAt: string;
 }
 
-
-interface GetTasksResponse {
-  data: {
-    tasks: Task[];
-  };
-}
-
 interface CreateTaskData {
   title: string;
   description?: string;
@@ -31,13 +24,16 @@ class TaskService {
   async getAll(): Promise<Task[]> {
     try {
       // API call to the backend to get all tasks for the current user
-      const response = await apiClient.get<GetTasksResponse>('/tasks');
+      const response: any = await apiClient.get('/tasks');
       return response.data.data.tasks || [];
-    } catch (error:any) {
-      // Show error message when backend is not running
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
+    } catch (error: any) {
+      // Handle 500 server errors specifically
+      if (error.response?.status === 500) {
+        console.warn('Server error when fetching tasks:', error.response.data.detail || error.message);
+        // Return empty array instead of throwing to prevent UI crashes
+        return [];
       }
+
       console.error('Error fetching tasks:', error);
       throw error;
     }
@@ -46,12 +42,9 @@ class TaskService {
   async getById(id: string | number): Promise<Task> {
     try {
       // API call to the backend to get a specific task
-      const response = await apiClient.get<{ data: Task }>(`/tasks/${id}`);
+      const response: any = await apiClient.get(`/tasks/${id}`);
       return response.data.data; // Backend returns task in data property
-    } catch (error :any) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
+    } catch (error: any) {
       console.error(`Error fetching task ${id}:`, error);
       throw error;
     }
@@ -60,12 +53,9 @@ class TaskService {
   async create(taskData: CreateTaskData): Promise<Task> {
     try {
       // API call to the backend to create a new task
-      const response = await apiClient.post<{ data: Task }>('/tasks', taskData);
+      const response: any = await apiClient.post('/tasks', taskData);
       return response.data.data; // Backend returns task in data property
-    } catch (error : any) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
+    } catch (error: any) {
       console.error('Error creating task:', error);
       throw error;
     }
@@ -74,14 +64,9 @@ class TaskService {
   async update(id: string | number, taskData: UpdateTaskData): Promise<Task> {
     try {
       // API call to the backend to update a task
-      const response = await apiClient.put<{ data: Task }>(
-        `/tasks/${id}`,
-         taskData);
-         return response.data.data; // Backend returns task in data property
-    } catch (error:any) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
+      const response: any = await apiClient.put(`/tasks/${id}`, taskData);
+      return response.data.data; // Backend returns task in data property
+    } catch (error: any) {
       console.error(`Error updating task ${id}:`, error);
       throw error;
     }
@@ -90,8 +75,7 @@ class TaskService {
   async toggleCompletion(id: string | number): Promise<Task> {
     try {
       // API call to the backend to toggle task completion
-      const response = await apiClient.patch<{ data: Partial<Task> }>(
-         `/tasks/${id}/toggle`);
+      const response: any = await apiClient.patch(`/tasks/${id}/toggle`);
 
       // The toggle endpoint returns limited data, so we need to fetch the full task
       // Or we can update based on the response we get
@@ -100,9 +84,6 @@ class TaskService {
       // For now, let's fetch the full task after toggling to get complete data
       return await this.getById(id);
     } catch (error: any) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
       console.error(`Error toggling task ${id}:`, error);
       throw error;
     }
@@ -112,10 +93,7 @@ class TaskService {
     try {
       // API call to the backend to delete a task
       await apiClient.delete(`/tasks/${id}`);
-    } catch (error :any) {
-      if (error.message && (error.message.includes('Network Error') || error.message.includes('ECONNREFUSED'))) {
-        throw new Error('Backend server is not running. Please start the backend server on port 8000.');
-      }
+    } catch (error) {
       console.error(`Error deleting task ${id}:`, error);
       throw error;
     }

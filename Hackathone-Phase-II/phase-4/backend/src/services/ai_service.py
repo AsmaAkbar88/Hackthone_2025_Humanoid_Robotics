@@ -37,23 +37,25 @@ class AIService:
     ) -> Dict[str, Any]:
         """
         MCP tool for adding tasks.
-        
+
         Args:
             title: Title of the task
             description: Optional description of the task
             user: User who owns the task
             session: Database session
-            
+
         Returns:
             Dictionary with task creation result
         """
         try:
             # Create task data
             task_create = TaskCreate(title=title, description=description)
-            
+
             # Use TaskService to create the task
-            created_task = await TaskService.create_task(session, task_create, user.id)
-            
+            # Convert user.id to string to match database schema
+            user_id_str = str(user.id)
+            created_task = await TaskService.create_task(session, task_create, user_id_str)
+
             return {
                 "success": True,
                 "task_id": created_task.id,
@@ -67,7 +69,7 @@ class AIService:
             }
     
     async def list_tasks_tool(
-        self, 
+        self,
         user: UserRead,
         session: AsyncSession,
         limit: int = 20,
@@ -75,20 +77,22 @@ class AIService:
     ) -> Dict[str, Any]:
         """
         MCP tool for listing tasks.
-        
+
         Args:
             user: User whose tasks to list
             session: Database session
             limit: Maximum number of tasks to return
             offset: Number of tasks to skip
-            
+
         Returns:
             Dictionary with list of tasks
         """
         try:
             # Use TaskService to get tasks
-            tasks = await TaskService.get_tasks_for_user(session, user.id, limit, offset)
-            
+            # Convert user.id to string to match database schema
+            user_id_str = str(user.id)
+            tasks = await TaskService.get_tasks_for_user(session, user_id_str, limit, offset)
+
             return {
                 "success": True,
                 "tasks": [task.model_dump() for task in tasks],
@@ -112,7 +116,7 @@ class AIService:
     ) -> Dict[str, Any]:
         """
         MCP tool for updating tasks.
-        
+
         Args:
             task_id: ID of the task to update
             title: New title (optional)
@@ -120,7 +124,7 @@ class AIService:
             completed: New completion status (optional)
             user: User who owns the task
             session: Database session
-            
+
         Returns:
             Dictionary with task update result
         """
@@ -133,12 +137,14 @@ class AIService:
                 update_data["description"] = description
             if completed is not None:
                 update_data["completed"] = completed
-                
+
             task_update = TaskUpdate(**update_data)
-            
+
             # Use TaskService to update the task
-            updated_task = await TaskService.update_task(session, task_id, task_update, user.id)
-            
+            # Convert user.id to string to match database schema
+            user_id_str = str(user.id)
+            updated_task = await TaskService.update_task(session, task_id, task_update, user_id_str)
+
             return {
                 "success": True,
                 "task_id": updated_task.id,
@@ -152,26 +158,28 @@ class AIService:
             }
     
     async def delete_task_tool(
-        self, 
-        task_id: int, 
+        self,
+        task_id: int,
         user: UserRead,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """
         MCP tool for deleting tasks.
-        
+
         Args:
             task_id: ID of the task to delete
             user: User who owns the task
             session: Database session
-            
+
         Returns:
             Dictionary with task deletion result
         """
         try:
             # Use TaskService to delete the task
-            await TaskService.delete_task(session, task_id, user.id)
-            
+            # Convert user.id to string to match database schema
+            user_id_str = str(user.id)
+            await TaskService.delete_task(session, task_id, user_id_str)
+
             return {
                 "success": True,
                 "task_id": task_id,
@@ -185,26 +193,29 @@ class AIService:
             }
     
     async def complete_task_tool(
-        self, 
-        task_id: int, 
+        self,
+        task_id: int,
         user: UserRead,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """
-        MCP tool for completing tasks.
         
+        MCP tool for completing tasks.
+
         Args:
             task_id: ID of the task to mark as complete
             user: User who owns the task
             session: Database session
-            
+
         Returns:
             Dictionary with task completion result
         """
         try:
             # Use TaskService to toggle task completion
-            updated_task = await TaskService.toggle_task_completion(session, task_id, user.id)
-            
+            # Convert user.id to string to match database schema
+            user_id_str = str(user.id)
+            updated_task = await TaskService.toggle_task_completion(session, task_id, user_id_str)
+
             status = "completed" if updated_task.completed else "marked as incomplete"
             return {
                 "success": True,

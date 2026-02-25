@@ -53,6 +53,25 @@ coverage/
 *.pid.lock
 pids/
 
+# Docker
+*.dockerignore
+docker/
+Dockerfile.*
+.dockerenv
+.dockercfg
+docker-compose*.yml
+!Dockerfile
+
+# Docker build artifacts
+.docker_build/
+.docker_temp/
+temp-manifests/
+
+# Temporary/Generated directories and files
+temp-manifests/
+*.docx
+nul
+
 # Backend and Frontend specific files are handled by their respective .gitignore files
 # This root .gitignore handles general project-level ignores
 

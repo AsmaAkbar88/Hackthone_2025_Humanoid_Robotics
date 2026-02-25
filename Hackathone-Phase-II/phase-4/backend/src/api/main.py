@@ -1,15 +1,24 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+
 from .routes.tasks import router as tasks_router
 from .routes.auth import router as auth_router
 from .routes.chat import router as chat_router
+from .mcp_server import server as mcp_server
 from ..config import settings
 from ..utils.error_handlers import add_exception_handlers
 from ..middleware.security import SecurityHeadersMiddleware
+
+# Reduce SQLAlchemy logging to reduce noise
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.dialects').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.orm').setLevel(logging.WARNING)
 
 
 @asynccontextmanager
@@ -50,7 +59,12 @@ def create_app() -> FastAPI:
     # Add CORS middleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # In production, configure specific origins
+        allow_origins=[
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:3001",
+            "http://127.0.0.1:3001",
+        ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -69,6 +83,11 @@ def create_app() -> FastAPI:
             "app_name": settings.app_name,
             "version": "1.0.0"
         }
+
+    @app.get("/health", include_in_schema=False)
+    async def health():
+        """Health check endpoint for Kubernetes probes."""
+        return {"status": "healthy"}
 
     return app
 

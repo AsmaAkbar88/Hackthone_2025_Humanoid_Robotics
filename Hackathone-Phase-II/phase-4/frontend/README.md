@@ -53,8 +53,8 @@ frontend/
 Create a `.env.local` file in the project root:
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
-NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:8000
+NEXT_PUBLIC_API_BASE_URL=http://todo-chatbot-backend:8000/api
+NEXT_PUBLIC_BETTER_AUTH_URL=http://todo-chatbot-backend:8000
 NEXT_PUBLIC_APP_NAME=Todo App
 ```
 
@@ -70,7 +70,7 @@ NEXT_PUBLIC_APP_NAME=Todo App
    npm run dev
    ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser during development, or access via the Kubernetes service in production.
 
 ## Scripts
 

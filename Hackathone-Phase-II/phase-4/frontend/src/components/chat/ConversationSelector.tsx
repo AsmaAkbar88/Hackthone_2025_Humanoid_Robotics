@@ -1,22 +1,19 @@
 import React from 'react';
 
 interface Conversation {
-  id: string;
+  id: string | number;
   title: string;
   updated_at: string;
+  // Add other properties as needed
 }
 
 interface ConversationSelectorProps {
   conversations: Conversation[];
-  onSelectConversation: (id: string) => void;
+  onSelectConversation: (id: string | number) => void;
   onCreateNew: () => void;
 }
 
-const ConversationSelector: React.FC<ConversationSelectorProps> = ({ 
-  conversations, 
-  onSelectConversation, 
-  onCreateNew 
-}) => {
+const ConversationSelector: React.FC<ConversationSelectorProps> = ({ conversations, onSelectConversation, onCreateNew }) => {
   return (
     <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
       <div className="flex justify-between items-center mb-3">

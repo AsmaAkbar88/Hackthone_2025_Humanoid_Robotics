@@ -2,8 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authService } from '@/services/auth-service';
-import type { User } from '@/services/auth-service';
+import { authService, type User } from '@/services/auth-service';
 
 interface AuthState {
   user: User | null;
@@ -114,25 +113,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }, 5000); // 5 seconds timeout
 
-    checkAuthStatus();
+    // Add a small delay to allow the app to initialize before checking auth status
+    // This helps prevent race conditions during startup
+    const authCheckTimer = setTimeout(() => {
+      checkAuthStatus();
+    }, 100); // Small delay to ensure initialization
+
+    // Cleanup the auth check timer
+    return () => {
+      clearTimeout(authCheckTimer);
+    };
   }, []);
 
   const checkAuthStatus = async () => {
     dispatch({ type: 'CHECK_AUTH_STATUS_START' });
-    
+
     // Clear the timeout since we're now getting a response
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    
+
     try {
       const user = await authService.getCurrentUser();
       dispatch({ type: 'CHECK_AUTH_STATUS_SUCCESS', payload: user });
-    } catch (error) {
+    } catch (err: any) {
+      if (err && typeof err === 'object' && err.response?.status === 401) {
+        dispatch({ type: 'CHECK_AUTH_STATUS_SUCCESS', payload: null }); // NORMAL
+        return;
+      }
+      // For other errors (real network issues), handle accordingly
       dispatch({
-        type: 'CHECK_AUTH_STATUS_FAILURE',
-        payload: 'Failed to check authentication status'
+        type: 'CHECK_AUTH_STATUS_SUCCESS',
+        payload: null // No user is authenticated, which is normal
       });
     }
   };
@@ -140,13 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     dispatch({ type: 'LOGIN_START' });
     try {
-      const { user, token } = await authService.login({ email, password });
-
-      // Store user and token in localStorage (in a real app, Better Auth handles this)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('auth-token', token); // Store the token
-      }
+      const { user } = await authService.login({ email, password });
 
       dispatch({ type: 'LOGIN_SUCCESS', payload: user });
       return user;
@@ -160,13 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, password: string, dateOfBirth: string) => {
     dispatch({ type: 'REGISTER_START' });
     try {
-      const { user, token } = await authService.register({ name, email, password, dateOfBirth }); // The authService will handle the field name transformation
-
-      // Store user and token in localStorage (in a real app, Better Auth handles this)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('auth-token', token); // Store the token
-      }
+      const { user } = await authService.register({ name, email, password, dateOfBirth }); // The authService will handle the field name transformation
 
       dispatch({ type: 'REGISTER_SUCCESS', payload: user });
       return user;

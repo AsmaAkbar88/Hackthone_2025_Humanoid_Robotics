@@ -10,7 +10,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from ..models.conversation import Conversation, ConversationCreate
 from ..models.message import Message, MessageCreate
 
-
 class ConversationService:
     """
     Service class to handle conversation operations.
@@ -18,19 +17,20 @@ class ConversationService:
     
     @staticmethod
     async def create_conversation(
-        session: AsyncSession, 
+        session: AsyncSession,
         conversation: ConversationCreate
     ) -> Conversation:
         """
         Create a new conversation.
-        
+
         Args:
             session: Database session
             conversation: Conversation data to create
-            
+
         Returns:
             Created Conversation object
         """
+        # The user_id should already be string due to the updated model
         db_conversation = Conversation.model_validate(conversation)
         session.add(db_conversation)
         await session.commit()
@@ -39,8 +39,8 @@ class ConversationService:
     
     @staticmethod
     async def get_conversation_by_id(
-        session: AsyncSession, 
-        conversation_id: int, 
+        session: AsyncSession,
+        conversation_id: int,
         user_id: int
     ) -> Optional[Conversation]:
         """
@@ -63,7 +63,7 @@ class ConversationService:
     
     @staticmethod
     async def get_conversations_by_user_id(
-        session: AsyncSession, 
+        session: AsyncSession,
         user_id: int
     ) -> List[Conversation]:
         """
@@ -122,8 +122,8 @@ class ConversationService:
     
     @staticmethod
     async def delete_conversation(
-        session: AsyncSession, 
-        conversation_id: int, 
+        session: AsyncSession,
+        conversation_id: int,
         user_id: int
     ) -> bool:
         """

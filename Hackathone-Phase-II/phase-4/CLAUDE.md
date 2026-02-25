@@ -4,9 +4,10 @@ This file is generated during init for the selected agent.
 
 You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
 
+
 ## Project Context: Phase III - Todo AI Chatbot
 
-**Project Objective:** Create an AI-powered chatbot interface for managing todos through natural language using MCP (Model Context Protocol) server architecture.
+**Project Objective:** Create an AI-powered chatbot interface for managing todos through natural language using MCP (Model Context Protocol) server architecture with full Kubernetes deployment using Helm charts.
 
 **Development Approach:** Agentic Dev Stack workflow
 - Write spec → Generate plan → Break into tasks → Implement via Claude Code
@@ -21,6 +22,12 @@ You are an expert AI assistant specializing in Spec-Driven Development (SDD). Yo
 - **ORM:** SQLModel (SQLM)
 - **Database:** Neon Serverless PostgreSQL
 - **Authentication:** Better Auth
+- **Containerization:** Docker
+- **Orchestration:** Kubernetes with Helm Charts
+- **Deployment:** Minikube for local development
+
+
+
 
 **Core Architecture Requirements:**
 1. Conversational interface for all Basic Level todo features
@@ -37,6 +44,10 @@ You are an expert AI assistant specializing in Spec-Driven Development (SDD). Yo
 - AI agents must interact with tasks exclusively through MCP tools
 - Follow OpenAI Agents SDK patterns for agent implementation
 - Use Official MCP SDK for server implementation
+- Kubernetes service-to-service communication using proper service names instead of localhost
+- Frontend must use NEXT_PUBLIC_ environment variables for API base URL configuration
+- Docker images must be properly built with correct runtime configurations
+- Helm charts must properly configure all environment variables for Kubernetes deployment
 
 ## Specialized Agent Usage for Phase III
 
@@ -306,6 +317,9 @@ You are not expected to solve every problem autonomously. You MUST invoke the us
 - **Database Persistence:** Conversation history, task state, and all application state must persist to database using SQLM (SQLModel).
 - **No Manual Coding:** All implementation must follow Agentic Dev Stack workflow (spec → plan → tasks → implement via Claude Code).
 - **Official MCP SDK:** Use Official MCP SDK for server implementation, not custom implementations.
+- **Kubernetes Service Communication:** Frontend and backend services must communicate using Kubernetes service names, not localhost addresses.
+- **Environment Variable Configuration:** Next.js frontend must properly handle NEXT_PUBLIC_ environment variables for API configuration.
+- **Helm Chart Deployment:** Application must be deployable via Helm charts with proper service configuration and environment variable injection.
 
 ### Execution contract for every request
 1) Confirm surface and success criteria (one sentence).
@@ -728,5 +742,52 @@ Response:
 Use Task tool with subagent_type="nextjs-app-performance-reviewer"
 Prompt: "Build ChatKit-based chat interface for Phase III Todo AI Chatbot. Implement message history display, input handling, authentication integration, and API calls to FastAPI backend. Optimize for performance."
 ```
+
+**Example 6: Kubernetes Deployment with Helm**
+```
+User: "Deploy the application to Kubernetes using Helm charts"
+
+Response:
+Use Task tool with subagent_type="general-purpose"
+Prompt: "Create comprehensive Helm chart for Todo AI Chatbot application with separate deployments for frontend and backend services, proper service configuration, and environment variable management for inter-service communication in Kubernetes."
+```
+
+**Example 7: Service Communication Fix**
+```
+User: "Fix frontend-backend communication in Kubernetes - frontend can't reach backend API"
+
+Response:
+Use Task tool with subagent_type="nextjs-app-performance-reviewer"
+Prompt: "Update frontend API client configuration to use Kubernetes service names instead of localhost for API calls in production environment. Ensure NEXT_PUBLIC_ environment variables are properly configured in Helm chart."
+```
+
+---
+
+## Deployment and Service Communication Guide
+
+### Kubernetes Deployment Architecture
+The application is deployed with:
+- Frontend service: todo-chatbot-frontend (ClusterIP and NodePort)
+- Backend service: todo-chatbot-backend (ClusterIP and NodePort)
+- Proper service-to-service communication using Kubernetes DNS names
+- Environment variables configured via Helm values.yaml
+
+### Addressing Common Issues
+**Issue:** Frontend making API requests to http://127.0.0.1:8000/api/* in Kubernetes
+**Solution:** Update api-client.ts to use proper environment variable fallback and ensure Helm chart injects correct service name
+
+**Issue:** Login/Register endpoints return 401/500 errors
+**Solution:** Ensure NEXT_PUBLIC_API_BASE_URL is properly set to 'http://todo-chatbot-backend:8000/api' in deployment
+
+### Docker Build Process
+- Frontend: Built with Next.js production build that embeds environment variables at build time
+- Backend: Built with all dependencies and proper startup configuration
+- Images loaded into Minikube Docker environment for deployment
+
+### Verification Steps
+1. Check pods status: `kubectl get pods`
+2. Check services: `kubectl get services`
+3. Access via NodePort: http://[minikube-ip]:[nodeport]
+4. Verify environment variables in pods: `kubectl exec -it [pod-name] -- env | grep NEXT_PUBLIC`
 
 

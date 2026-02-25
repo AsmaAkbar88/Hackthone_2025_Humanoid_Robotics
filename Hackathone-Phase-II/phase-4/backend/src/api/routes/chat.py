@@ -3,10 +3,12 @@ Chat API routes for the Todo Backend API.
 
 Implements the chat endpoint using FastAPI.
 """
+import re
 from typing import Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from pydantic import BaseModel
+
 
 from ...models.user import UserRead
 from ...models.conversation import Conversation, ConversationCreate
@@ -32,46 +34,56 @@ class ChatResponse(BaseModel):
     data: Dict[str, Any]
 
 
-@router.post("/{user_id}", response_model=ChatResponse)
+@router.post("/{user_id}/chat", response_model=ChatResponse)
 async def chat_with_ai(
-    user_id: int,
+    user_id: str,  # The user ID from the path parameter
     chat_request: ChatRequest,
     session: AsyncSession = Depends(get_async_session)
 ):
     """
     Process natural language input from user and return AI-generated response with appropriate task operations.
-    
+
     Args:
-        user_id: ID of the authenticated user
+        user_id: ID of the authenticated user (from JWT token via path)
         chat_request: Chat request containing message and optional conversation_id
         session: Async database session
-        
+
     Returns:
         Dictionary containing AI response and any actions taken
     """
     try:
-        # Verify user authentication and authorization
-        # In a real implementation, we would get the token from the request headers
-        # For now, we'll retrieve the user from the database
-        from sqlmodel import select
-        from ...models.user import User
-        user_statement = select(User).where(User.id == user_id)
-        user_result = await session.execute(user_statement)
-        db_user = user_result.scalar_one_or_none()
-        
-        if not db_user:
+        # In this implementation, the user_id from the path is expected to be a string representation
+        # of the database user ID. For example, if the database user ID is 1, it would come as "1".
+        # We validate that the user exists in the database.
+        try:
+            user_id_int = int(user_id)  # Convert the path user_id to int to match database ID
+            from sqlmodel import select
+            from ...models.user import User, UserRead
+
+            user_statement = select(User).where(User.id == user_id_int)
+            user_result = await session.execute(user_statement)
+            db_user = user_result.scalar_one_or_none()
+
+            if not db_user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found"
+                )
+
+            current_user = UserRead.model_validate(db_user)
+        except ValueError:
+            # If user_id is not a numeric string, then it's invalid
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
+                detail="Invalid user ID format"
             )
-        
-        current_user = UserRead.model_validate(db_user)
+
         
         # Get or create conversation
         if chat_request.conversation_id:
             # Load existing conversation
             conversation = await ConversationService.get_conversation_by_id(
-                session, chat_request.conversation_id, user_id
+                session, chat_request.conversation_id, user_id_int
             )
             if not conversation:
                 raise HTTPException(
@@ -80,14 +92,15 @@ async def chat_with_ai(
                 )
         else:
             # Create new conversation
-            conversation_data = ConversationCreate(title=chat_request.message[:50] + "..." if len(chat_request.message) > 50 else chat_request.message, user_id=user_id)
+            conversation_data = ConversationCreate(title=chat_request.message[:50] + "..." if len(chat_request.message) > 50 else chat_request.message, user_id=str(user_id_int))
             conversation = await ConversationService.create_conversation(session, conversation_data)
         
         # Save user message to conversation
         user_message = MessageCreate(
             role=MessageRole.USER,
             content=chat_request.message,
-            conversation_id=conversation.id
+            conversation_id=conversation.id,
+            user_id=str(user_id_int)  # Convert to string to match database schema
         )
         await ConversationService.add_message_to_conversation(session, user_message)
         
@@ -124,7 +137,7 @@ async def chat_with_ai(
                 task_title = chat_request.message.strip()
                 
                 # Call the add_task_tool
-                result = await ai_service.add_task_tool(task_title, current_user, session, None)
+                result = await ai_service.add_task_tool(task_title, current_user, session, description=None)
                 if result["success"]:
                     ai_response = f"Task added: {result['message']}"
                     actions_taken = [{
@@ -197,7 +210,7 @@ async def chat_with_ai(
                         task_title = task_title[3:].strip()
 
                     # Call the add_task_tool
-                    result = await ai_service.add_task_tool(task_title, current_user, session, None)
+                    result = await ai_service.add_task_tool(task_title, current_user, session, description=None)
                     if result["success"]:
                         ai_response = f"Task added: {result['message']}"
                         actions_taken = [{
@@ -335,7 +348,7 @@ async def chat_with_ai(
                     task_title = task_title[3:].strip()
 
                 # Call the add_task_tool
-                result = await ai_service.add_task_tool(task_title, current_user, session, None)
+                result = await ai_service.add_task_tool(task_title, current_user, session, description=None)
                 if result["success"]:
                     ai_response = f"Task added: {result['message']}"
                     actions_taken = [{
@@ -460,7 +473,8 @@ async def chat_with_ai(
         ai_message = MessageCreate(
             role=MessageRole.ASSISTANT,
             content=ai_response,
-            conversation_id=conversation.id
+            conversation_id=conversation.id,
+            user_id=str(user_id_int)  # Convert to string to match database schema
         )
         await ConversationService.add_message_to_conversation(session, ai_message)
         
@@ -484,21 +498,23 @@ async def chat_with_ai(
 
 @router.get("/{user_id}/conversations")
 async def get_user_conversations(
-    user_id: int,
+    user_id: str,  # The user ID from the path parameter
     session: AsyncSession = Depends(get_async_session)
 ):
     """
     Retrieve list of conversation summaries for the authenticated user.
-    
+
     Args:
         user_id: ID of the authenticated user
         session: Async database session
-        
+
     Returns:
         Dictionary containing list of conversations
     """
     try:
-        conversations = await ConversationService.get_conversations_by_user_id(session, user_id)
+        # Convert the path user_id to int to match database ID
+        user_id_int = int(user_id)
+        conversations = await ConversationService.get_conversations_by_user_id(session, user_id_int)
         
         return {
             "success": True,
@@ -516,7 +532,7 @@ async def get_user_conversations(
 
 @router.get("/{user_id}/conversations/{conversation_id}")
 async def get_conversation_history(
-    user_id: int,
+    user_id: str,  # Changed from int to str to match path parameter format
     conversation_id: int,
     session: AsyncSession = Depends(get_async_session)
 ):
@@ -532,7 +548,9 @@ async def get_conversation_history(
         Dictionary containing conversation details with messages
     """
     try:
-        conversation = await ConversationService.get_conversation_by_id(session, conversation_id, user_id)
+        # Convert the path user_id to int to match database ID
+        user_id_int = int(user_id)
+        conversation = await ConversationService.get_conversation_by_id(session, conversation_id, user_id_int)
         
         if not conversation:
             raise HTTPException(

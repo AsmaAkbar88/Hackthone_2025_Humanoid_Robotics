@@ -1,11 +1,16 @@
 import React from 'react';
 
+interface MessageAction {
+  action: string;
+  // Add other action properties as needed
+}
+
 interface Message {
-  id?: string;
-  timestamp?: string;
+  id: string | number;
   role: 'user' | 'assistant';
   content: string;
-  actionsTaken?: Array<{ action: string }>;
+  timestamp?: string;
+  actionsTaken?: MessageAction[];
 }
 
 interface ChatHistoryProps {

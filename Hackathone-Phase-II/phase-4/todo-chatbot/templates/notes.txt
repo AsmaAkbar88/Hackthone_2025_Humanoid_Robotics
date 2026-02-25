@@ -1,0 +1,36 @@
+{{- if .Release.Name }}
+Thank you for installing {{ .Chart.Name }}.
+
+Your release {{ .Release.Name }} has been deployed to namespace {{ .Release.Namespace }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+{{- if .Values.ingress.enabled }}
+Ingress is enabled. You can access the application at:
+{{- range $host := .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}
+{{- end }}
+{{- else }}
+You can access the application using port forwarding:
+
+Frontend:
+  $ kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "todo-chatbot.fullname" . }}-frontend {{ .Values.frontend.service.port }}:{{ .Values.frontend.service.port }}
+
+Backend:
+  $ kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "todo-chatbot.fullname" . }}-backend {{ .Values.backend.service.port }}:{{ .Values.backend.service.port }}
+{{- end }}
+
+Frontend Service: {{ include "todo-chatbot.fullname" . }}-frontend:{{ .Values.frontend.service.port }}
+Backend Service: {{ include "todo-chatbot.fullname" . }}-backend:{{ .Values.backend.service.port }}
+
+Note: Make sure the Docker images 'todo-frontend:latest' and 'todo-backend:latest' are available in your Kubernetes cluster.
+{{- if contains "minikube" .Values.frontend.image.pullPolicy | or (contains "Never" .Values.frontend.image.pullPolicy) }}
+For Minikube: Ensure images are built locally with 'minikube image load'
+{{- end }}
+{{- if contains "minikube" .Values.backend.image.pullPolicy | or (contains "Never" .Values.backend.image.pullPolicy) }}
+For Minikube: Ensure images are built locally with 'minikube image load'
+{{- end }}
+{{- end }}

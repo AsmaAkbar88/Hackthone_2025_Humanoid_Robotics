@@ -19,7 +19,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { register, state } = useAuth(); // Get the state to access user info
+  const { register } = useAuth();
   const { showError, showSuccess } = useNotifications();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,11 +68,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess }) => {
         signup_date: new Date().toISOString() // Send signup date to backend
       };
 
-      await register(signupData.name, signupData.email, signupData.password, signupData.date_of_birth);
-      
-      // Get the user from the context after successful registration
-      const user = state.user;
-      showSuccess(`Account created successfully! Welcome, ${user?.name || email.split('@')[0]}. You can now login.`);
+      const user = await register(signupData.name, signupData.email, signupData.password, signupData.date_of_birth);
+      showSuccess(`Account created successfully! Welcome, ${user.name || user.email.split('@')[0]}. You can now login.`);
 
       if (onSuccess) {
         onSuccess();

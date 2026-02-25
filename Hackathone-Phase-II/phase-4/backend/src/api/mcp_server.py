@@ -4,7 +4,7 @@ MCP (Model Context Protocol) Server Implementation for the Todo Backend API.
 Implements the MCP server with 5 task management tools using the Official MCP SDK.
 """
 from mcp.server import Server
-from mcp.types import CallToolResult, Tool, Parameter
+from mcp.types import CallToolResult, Tool
 from typing import Dict, Any, List
 import json
 from sqlmodel import create_engine, Session
@@ -19,17 +19,6 @@ from ..services.ai_service import ai_service
 # Create the MCP server instance
 server = Server("todo-mcp-server")
 
-
-@server.after_listen
-async def startup():
-    """Initialize resources after the server starts listening."""
-    print("MCP Server started and ready to handle tool requests")
-
-
-@server.before_close
-async def shutdown():
-    """Clean up resources before the server closes."""
-    print("MCP Server shutting down")
 
 
 @server.list_tools()
@@ -106,31 +95,31 @@ async def list_tools() -> List[Tool]:
 async def call_tool(name: str, arguments: Dict[str, Any]) -> CallToolResult:
     """
     Handle tool calls from the MCP server.
-    
+
     Args:
         name: Name of the tool to call
         arguments: Arguments to pass to the tool
-        
+
     Returns:
         Result of the tool call
     """
     try:
         # Extract user_id from arguments
         user_id = int(arguments.get("user_id"))
-        
+
         # Create a mock user object for compatibility with existing services
         # In a real implementation, you would fetch the user from the database
         current_user = UserRead(
             id=user_id,
             email=f"user_{user_id}@example.com"  # Placeholder email
         )
-        
+
         # Get the database session - in a real implementation, you would get this properly
         # For now, we'll use the AI service which handles the database operations
         if name == "add_task":
             title = arguments.get("title")
             description = arguments.get("description")
-            
+
             # Using the AI service's method for consistency
             result = await ai_service.add_task_tool(
                 title=title,
@@ -138,56 +127,56 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> CallToolResult:
                 user=current_user,
                 session=None  # Will be handled internally
             )
-            
+
             return CallToolResult(content=json.dumps(result))
-            
+
         elif name == "list_tasks":
             status = arguments.get("status", "all")
-            
+
             # Using the AI service's method for consistency
             result = await ai_service.list_tasks_tool(
                 user=current_user,
                 session=None  # Will be handled internally
             )
-            
+
             # Filter results based on status if needed
             if status != "all" and "tasks" in result:
                 if status == "pending":
                     result["tasks"] = [task for task in result["tasks"] if not task.get("completed")]
                 elif status == "completed":
                     result["tasks"] = [task for task in result["tasks"] if task.get("completed")]
-                    
+
             return CallToolResult(content=json.dumps(result))
-            
+
         elif name == "complete_task":
             task_id = arguments.get("task_id")
-            
+
             # Using the AI service's method for consistency
             result = await ai_service.complete_task_tool(
                 task_id=task_id,
                 user=current_user,
                 session=None  # Will be handled internally
             )
-            
+
             return CallToolResult(content=json.dumps(result))
-            
+
         elif name == "delete_task":
             task_id = arguments.get("task_id")
-            
+
             # Using the AI service's method for consistency
             result = await ai_service.delete_task_tool(
                 task_id=task_id,
                 user=current_user,
                 session=None  # Will be handled internally
             )
-            
+
             return CallToolResult(content=json.dumps(result))
-            
+
         elif name == "update_task":
             task_id = arguments.get("task_id")
             title = arguments.get("title")
             description = arguments.get("description")
-            
+
             # Using the AI service's method for consistency
             result = await ai_service.update_task_tool(
                 task_id=task_id,
@@ -196,9 +185,9 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> CallToolResult:
                 user=current_user,
                 session=None  # Will be handled internally
             )
-            
+
             return CallToolResult(content=json.dumps(result))
-            
+
         else:
             return CallToolResult(
                 content=json.dumps({
@@ -207,7 +196,7 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> CallToolResult:
                     "message": f"Tool '{name}' not found"
                 })
             )
-            
+
     except Exception as e:
         return CallToolResult(
             content=json.dumps({
@@ -222,13 +211,13 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> CallToolResult:
 if __name__ == "__main__":
     import asyncio
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Run the Todo MCP Server")
     parser.add_argument("--port", type=int, default=3000, help="Port to run the server on")
     args = parser.parse_args()
-    
+
     async def main():
         # Start the server
         await server.run(port=args.port)
-    
+
     asyncio.run(main())
