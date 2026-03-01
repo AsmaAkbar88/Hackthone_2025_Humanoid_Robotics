@@ -62,16 +62,3 @@ desktop.ini
 ~$*.doc*
 ~$*.xls*
 
-# Watcher session files
-AI_Employee_Vault/Needs_Action/FILE_DROP_*
-AI_Employee_Vault/Done/*
-AI_Employee_Vault/Plans/*
-AI_Employee_Vault/Pending_Approval/*
-AI_Employee_Vault/Approved/*
-AI_Employee_Vault/Rejected/*
-
-# Keep these (templates only)
-!AI_Employee_Vault/Dashboard.md
-!AI_Employee_Vault/Company_Handbook.md
-!AI_Employee_Vault/Business_Goals.md
-!AI_Employee_Vault/code/
