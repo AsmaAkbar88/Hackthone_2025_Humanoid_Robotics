@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+AI_Employee_Vault/Logs/*.log
+AI_Employee_Vault/Logs/*.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Credentials (IMPORTANT!)
+*.pem
+*.key
+*.crt
+credentials.json
+token.json
+service_account.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+~$*.doc*
+~$*.xls*
+
+# Watcher session files
+AI_Employee_Vault/Needs_Action/FILE_DROP_*
+AI_Employee_Vault/Done/*
+AI_Employee_Vault/Plans/*
+AI_Employee_Vault/Pending_Approval/*
+AI_Employee_Vault/Approved/*
+AI_Employee_Vault/Rejected/*
+
+# Keep these (templates only)
+!AI_Employee_Vault/Dashboard.md
+!AI_Employee_Vault/Company_Handbook.md
+!AI_Employee_Vault/Business_Goals.md
+!AI_Employee_Vault/code/

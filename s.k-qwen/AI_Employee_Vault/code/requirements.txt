@@ -1,0 +1,22 @@
+# AI Employee - Bronze Tier Dependencies
+# Install with: pip install -r requirements.txt
+
+# File system watching (FileSystemWatcher)
+watchdog>=4.0.0
+
+# Optional: For enhanced logging
+colorama>=0.4.6
+
+# Optional: For YAML parsing (if extending frontmatter)
+pyyaml>=6.0
+
+# Note: Python 3.13+ is required
+# Other dependencies are from standard library:
+# - pathlib
+# - logging
+# - datetime
+# - json
+# - shutil
+# - hashlib
+# - subprocess
+# - argparse
