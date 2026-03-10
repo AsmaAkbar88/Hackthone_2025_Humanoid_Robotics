@@ -50,6 +50,25 @@ AI_Employee_Vault/Logs/*.json
 credentials.json
 token.json
 service_account.json
+*.p12
+oauth2token.json
+
+# Session data (browser profiles)
+AI_Employee_Vault/code/watchers/chrome_gmail_profile/
+AI_Employee_Vault/code/watchers/linkedin_session/
+AI_Employee_Vault/code/watchers/*/Default/
+AI_Employee_Vault/code/watchers/*/Profile*/
+
+# Obsidian
+.obsidian/
+
+
+# Screenshots (auto-generated)
+*.png
+email_sent_confirmation.png
+linkedin_login_failed.png
+linkedin_post_error.png
+linkedin_submit_failed.png
 
 # OS
 .DS_Store

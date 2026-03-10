@@ -1,22 +1,21 @@
-# AI Employee - Bronze Tier Dependencies
+# AI Employee - Silver Tier Dependencies
 # Install with: pip install -r requirements.txt
 
-# File system watching (FileSystemWatcher)
+# Core dependencies
 watchdog>=4.0.0
-
-# Optional: For enhanced logging
 colorama>=0.4.6
-
-# Optional: For YAML parsing (if extending frontmatter)
 pyyaml>=6.0
 
-# Note: Python 3.13+ is required
-# Other dependencies are from standard library:
-# - pathlib
-# - logging
-# - datetime
-# - json
-# - shutil
-# - hashlib
-# - subprocess
-# - argparse
+# Gmail Watcher
+google-api-python-client>=2.100.0
+google-auth-httplib2>=0.1.0
+google-auth-oauthlib>=1.1.0
+
+# WhatsApp & LinkedIn Watchers (Playwright)
+playwright>=1.40.0
+
+# Optional: Enhanced logging
+python-json-logger>=2.0.0
+
+# Note: Python 3.13+ is recommended
+# After installing, run: playwright install
